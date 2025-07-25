@@ -149,9 +149,14 @@
             <!-- หน้าแสดงผลการลงนาม (Gallery) -->
             <section id="gallery-page" class="p-6 md:p-12 hidden">
                 <h2 class="text-2xl md:text-3xl font-bold text-center text-amber-800 mb-8">รายนามผู้ถวายพระพรชัยมงคล</h2>
-                <div id="gallery-content">
+                <div id="gallery-content" class="min-h-[400px]">
                     <!-- เนื้อหาจะถูกสร้างโดย JavaScript -->
                 </div>
+                <!-- START: Pagination Controls Container -->
+                <div id="pagination-controls" class="flex justify-center items-center space-x-2 mt-8">
+                    <!-- Pagination buttons will be inserted here by JS -->
+                </div>
+                <!-- END: Pagination Controls Container -->
                 <div class="text-center mt-8">
                     <button onclick="showPage('home-page')" class="px-8 py-3 bg-amber-500 text-white text-lg font-bold rounded-lg shadow-md hover:bg-amber-600 transition-all duration-300 transform hover:scale-105">
                         กลับสู่หน้าหลัก
@@ -172,11 +177,15 @@
         const getWebhookURL = 'https://n8n.meekroo.org/webhook/01c56d0f-a07a-4a6d-aee9-8626e7029d3f';
         const mainContent = document.getElementById('main-content');
 
-        // Function to apply animations on load
+        // START: Pagination State
+        let currentPage = 1;
+        const itemsPerPage = 9; // 3x3 grid
+        let allBlessings = []; // Cache for all fetched blessings
+        // END: Pagination State
+
         function applyLoadAnimations() {
             const elements = document.querySelectorAll('.animate-on-load');
             elements.forEach(el => {
-                // Determine animation type from class list or use a default
                 if (el.querySelector('img')) {
                      el.classList.add('anim-zoom-in');
                 } else {
@@ -186,28 +195,26 @@
         }
 
         function showPage(pageId) {
-            mainContent.style.opacity = '0'; // Start fade out
-
+            mainContent.style.opacity = '0';
             setTimeout(() => {
                 pages.forEach(id => {
-                    const page = document.getElementById(id);
-                    page.classList.toggle('hidden', id !== pageId);
+                    document.getElementById(id).classList.toggle('hidden', id !== pageId);
                 });
-
-                // Add animation to the new page
                 const newPage = document.getElementById(pageId);
                 newPage.classList.add('anim-fade-in');
-                
-                // Remove the animation class after it's done to allow re-triggering
                 setTimeout(() => newPage.classList.remove('anim-fade-in'), 600);
 
-
                 if (pageId === 'gallery-page') {
-                    fetchAndRenderBlessings();
+                    // Reset to page 1 and fetch data if not already cached
+                    currentPage = 1;
+                    if (allBlessings.length === 0) {
+                        fetchAndRenderBlessings();
+                    } else {
+                        displayCurrentPage(); // Use cached data
+                    }
                 }
-                mainContent.style.opacity = '1'; // Fade in
-            }, 300); // Wait for fade out to complete
-
+                mainContent.style.opacity = '1';
+            }, 300);
             window.scrollTo(0, 0);
         }
 
@@ -249,6 +256,7 @@
                 });
                 form.reset();
                 customBlessingTextarea.classList.add('hidden');
+                allBlessings = []; // Clear cache to force a refetch
                 showPage('gallery-page');
             } catch (error) {
                 console.error('Error sending to webhook:', error);
@@ -258,6 +266,82 @@
                 submitButton.textContent = 'ลงนามถวายพระพร';
             }
         });
+
+        function displayCurrentPage() {
+            const galleryContent = document.getElementById('gallery-content');
+            const paginationControls = document.getElementById('pagination-controls');
+            galleryContent.innerHTML = '';
+            paginationControls.innerHTML = '';
+
+            if (allBlessings.length === 0) {
+                galleryContent.innerHTML = '<p class="text-center text-gray-600 py-10 anim-fade-in">ยังไม่มีผู้ลงนามถวายพระพร</p>';
+                return;
+            }
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const paginatedItems = allBlessings.slice(startIndex, endIndex);
+
+            const galleryGrid = document.createElement('div');
+            galleryGrid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6';
+
+            paginatedItems.forEach((item, index) => {
+                if (!item || typeof item !== 'object') return;
+                const fullname = item.fullname || 'ไม่ระบุชื่อ';
+                const organization = item.organization || '';
+                const message = item.message || 'ไม่มีข้อความ';
+
+                const card = document.createElement('div');
+                card.className = 'bg-yellow-50 border border-amber-200 rounded-lg p-6 shadow-lg opacity-0 anim-fade-in-up';
+                card.style.animationDelay = `${index * 100}ms`;
+                const orgHtml = organization ? `<p class="text-sm text-gray-600 font-semibold">${organization}</p>` : '';
+
+                card.innerHTML = `
+                    <p class="text-lg text-amber-800 mb-2">“${message}”</p>
+                    <hr class="my-3 border-amber-200">
+                    <p class="text-md font-bold text-gray-800">${fullname}</p>
+                    ${orgHtml}`;
+                galleryGrid.appendChild(card);
+            });
+            galleryContent.appendChild(galleryGrid);
+
+            renderPaginationControls();
+        }
+
+        function renderPaginationControls() {
+            const paginationControls = document.getElementById('pagination-controls');
+            const totalPages = Math.ceil(allBlessings.length / itemsPerPage);
+
+            if (totalPages <= 1) return; // Don't show controls if only one page
+
+            // Previous Button
+            const prevButton = document.createElement('button');
+            prevButton.innerHTML = '&laquo; ก่อนหน้า';
+            prevButton.className = 'px-4 py-2 rounded-lg bg-white border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed';
+            if (currentPage === 1) prevButton.disabled = true;
+            prevButton.onclick = () => {
+                currentPage--;
+                displayCurrentPage();
+            };
+            paginationControls.appendChild(prevButton);
+
+            // Page Number Info
+            const pageInfo = document.createElement('span');
+            pageInfo.className = 'px-4 py-2 text-gray-700';
+            pageInfo.textContent = `หน้า ${currentPage} / ${totalPages}`;
+            paginationControls.appendChild(pageInfo);
+
+            // Next Button
+            const nextButton = document.createElement('button');
+            nextButton.innerHTML = 'ถัดไป &raquo;';
+            nextButton.className = 'px-4 py-2 rounded-lg bg-white border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed';
+            if (currentPage === totalPages) nextButton.disabled = true;
+            nextButton.onclick = () => {
+                currentPage++;
+                displayCurrentPage();
+            };
+            paginationControls.appendChild(nextButton);
+        }
 
         async function fetchAndRenderBlessings() {
             const galleryContent = document.getElementById('gallery-content');
@@ -270,9 +354,8 @@
             try {
                 const response = await fetch(getWebhookURL);
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                
                 const responseData = await response.json();
-                
+
                 let rawArray = [];
                 if (Array.isArray(responseData)) {
                     rawArray = responseData;
@@ -282,49 +365,15 @@
                     rawArray = Object.values(responseData);
                 }
 
-                if (rawArray.length === 0) {
-                    galleryContent.innerHTML = '<p class="text-center text-gray-600 py-10 anim-fade-in">ยังไม่มีผู้ลงนามถวายพระพร</p>';
-                    return;
-                }
-
-                const blessings = rawArray.map(item => {
+                const parsedBlessings = rawArray.map(item => {
                     if (item && typeof item.body === 'string') {
                         try { return JSON.parse(item.body); } catch (e) { return null; }
                     }
                     return item;
                 }).filter(item => item !== null);
-
-                if (blessings.length === 0) {
-                    galleryContent.innerHTML = '<p class="text-center text-gray-600 py-10 anim-fade-in">ไม่พบข้อมูลที่สามารถแสดงผลได้</p>';
-                    return;
-                }
-
-                const galleryGrid = document.createElement('div');
-                galleryGrid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6';
                 
-                blessings.reverse().forEach((item, index) => {
-                    if (!item || typeof item !== 'object') return;
-
-                    const fullname = item.fullname || 'ไม่ระบุชื่อ';
-                    const organization = item.organization || '';
-                    const message = item.message || 'ไม่มีข้อความ';
-
-                    const card = document.createElement('div');
-                    card.className = 'bg-yellow-50 border border-amber-200 rounded-lg p-6 shadow-lg opacity-0 anim-fade-in-up';
-                    // Staggered animation delay
-                    card.style.animationDelay = `${index * 100}ms`;
-                    const orgHtml = organization ? `<p class="text-sm text-gray-600 font-semibold">${organization}</p>` : '';
-
-                    card.innerHTML = `
-                        <p class="text-lg text-amber-800 mb-2">“${message}”</p>
-                        <hr class="my-3 border-amber-200">
-                        <p class="text-md font-bold text-gray-800">${fullname}</p>
-                        ${orgHtml}`;
-                    galleryGrid.appendChild(card);
-                });
-                
-                galleryContent.innerHTML = '';
-                galleryContent.appendChild(galleryGrid);
+                allBlessings = parsedBlessings.reverse(); // Store reversed (newest first) in cache
+                displayCurrentPage();
 
             } catch (error) {
                 console.error('Error fetching blessings:', error);
@@ -335,7 +384,6 @@
             }
         }
         
-        // Trigger animations on initial page load
         document.addEventListener('DOMContentLoaded', applyLoadAnimations);
     </script>
 </body>
