@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ลงนามถวายพระพรชัยมงคล พระบาทสมเด็จพระเจ้าอยู่หัว รัชกาลที่ 10</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Sarabun -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ใช้ฟอนต์ Sarabun เป็นหลัก */
+        body {
+            font-family: 'Sarabun', sans-serif;
+        }
+        /* สไตล์สำหรับพื้นหลังลายไทย */
+        .thai-pattern-bg {
+            background-image: url('https://www.toptal.com/designers/subtlepatterns/uploads/thai-style.png');
+            background-repeat: repeat;
+            background-color: #fefce8; /* bg-yellow-50 */
+        }
+        /* Animation สำหรับ Loading Spinner */
+        .loader {
+            border: 5px solid #f3f3f3; /* Light grey */
+            border-top: 5px solid #f59e0b; /* Amber 500 */
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="thai-pattern-bg">
+
+    <div id="app" class="container mx-auto p-4 md:p-8 max-w-5xl">
+        
+        <!-- ส่วน Header กลาง -->
+        <header class="text-center mb-8">
+            <div class="inline-block bg-white bg-opacity-70 p-4 rounded-lg">
+                <img src="https://inspector.rta.mi.th/igd67/images/king10logo/3.png" 
+                     alt="ตราพระปรมาภิไธยย่อ ว.ป.ร."
+                     class="h-24 md:h-32 mx-auto mb-4"
+                     onerror="this.onerror=null;this.src='https://placehold.co/300x150/e9d5a1/333333?text=ตราพระปรมาภิไธยย่อ';">
+                <h1 class="text-xl md:text-3xl font-bold text-amber-800 mt-2">เว็บไซต์ลงนามถวายพระพรชัยมงคล</h1>
+                <p class="text-md md:text-lg text-amber-700">พระบาทสมเด็จพระปรเมนทรรามาธิบดีศรีสินทรมหาวชิราลงกรณ พระวชิรเกล้าเจ้าอยู่หัว</p>
+            </div>
+        </header>
+
+        <main id="main-content" class="bg-white bg-opacity-90 shadow-2xl rounded-2xl overflow-hidden min-h-[500px]">
+            <!-- หน้าหลัก (Home) -->
+            <section id="home-page" class="p-6 md:p-12 text-center flex flex-col items-center">
+                <div class="flex justify-center">
+                    <img src="https://www.royaloffice.th/wp-content/uploads/2025/07/%E0%B8%81%E0%B8%81%E0%B8%A7-0201.1-63-2568-1-nr-scaled.webp" 
+                         alt="พระบรมฉายาลักษณ์พระบาทสมเด็จพระเจ้าอยู่หัว" 
+                         class="rounded-xl shadow-lg w-full max-w-md border-4 border-amber-300"
+                         onerror="this.onerror=null;this.src='https://placehold.co/800x1000/e9d5a1/333333?text=พระบรมฉายาลักษณ์';">
+                </div>
+                <div class="mt-8">
+                    <p class="text-2xl md:text-3xl font-bold text-amber-800">ขอพระองค์ทรงพระเจริญยิ่งยืนนาน</p>
+                    <p class="text-lg md:text-xl text-gray-700 mt-2">ด้วยเกล้าด้วยกระหม่อม ขอเดชะ</p>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-4 mt-8">
+                    <button onclick="showPage('form-page')" class="px-8 py-4 bg-amber-500 text-white text-xl font-bold rounded-lg shadow-md hover:bg-amber-600 transition-colors duration-300">
+                        ร่วมลงนามถวายพระพร
+                    </button>
+                    <button onclick="showPage('gallery-page')" class="px-8 py-4 bg-sky-600 text-white text-xl font-bold rounded-lg shadow-md hover:bg-sky-700 transition-colors duration-300">
+                        ดูรายนามผู้ถวายพระพร
+                    </button>
+                </div>
+            </section>
+
+            <!-- หน้าฟอร์มลงนาม (Form) -->
+            <section id="form-page" class="p-6 md:p-12 hidden">
+                <h2 class="text-2xl md:text-3xl font-bold text-center text-amber-800 mb-8">ลงนามถวายพระพรชัยมงคล</h2>
+                <form id="blessing-form" class="max-w-xl mx-auto">
+                    <div class="mb-6">
+                        <label for="fullname" class="block text-gray-700 text-lg font-bold mb-2">ชื่อ-สกุล <span class="text-red-500">*</span></label>
+                        <input type="text" id="fullname" name="fullname" class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-amber-500" required>
+                    </div>
+                    <div class="mb-6">
+                        <label for="organization" class="block text-gray-700 text-lg font-bold mb-2">หน่วยงาน/สังกัด (ถ้ามี)</label>
+                        <input type="text" id="organization" name="organization" class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-amber-500">
+                    </div>
+                    <div class="mb-6">
+                        <label for="blessing-message" class="block text-gray-700 text-lg font-bold mb-2">คำถวายพระพร <span class="text-red-500">*</span></label>
+                        <!-- START: เพิ่มตัวเลือกคำถวายพระพร -->
+                        <select id="blessing-message" name="blessing-message" class="shadow border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-amber-500 mb-2">
+                            <option value="ขอพระองค์ทรงพระเจริญ ด้วยเกล้าด้วยกระหม่อม ขอเดชะ">ขอพระองค์ทรงพระเจริญ</option>
+                            <option value="ขอพระราชทานถวายพระพรชัยมงคล ขอพระองค์ทรงพระเจริญ ด้วยเกล้าด้วยกระหม่อม ขอเดชะ">ขอพระราชทานถวายพระพรชัยมงคล</option>
+                            <option value="ทรงพระเกษมสำราญ มีพระพลานามัยแข็งแรงสมบูรณ์ ด้วยเกล้าด้วยกระหม่อม ขอเดชะ">ทรงพระเกษมสำราญ มีพระพลานามัยแข็งแรงสมบูรณ์</option>
+                            <option value="ขอพระองค์ทรงมีพระชนมายุยิ่งยืนนาน สถิตเป็นมิ่งขวัญของปวงชนชาวไทยตลอดไป">ขอพระองค์ทรงมีพระชนมายุยิ่งยืนนาน</option>
+                            <option value="ขออานุภาพแห่งคุณพระศรีรัตนตรัย โปรดดลบันดาลให้ทรงพระเจริญ">ขออานุภาพแห่งคุณพระศรีรัตนตรัย โปรดดลบันดาลให้ทรงพระเจริญ</option>
+                            <option value="ขอถวายพระพรชัยมงคล ขอพระองค์ทรงพระเจริญ">ขอถวายพระพรชัยมงคล</option>
+                            <option value="ขอพระองค์ทรงเป็นมิ่งขวัญร่มเกล้าของปวงชนชาวไทยสืบไป">ขอพระองค์ทรงเป็นมิ่งขวัญร่มเกล้าของปวงชนชาวไทยสืบไป</option>
+                            <option value="custom">พิมพ์ข้อความเอง</option>
+                        </select>
+                        <!-- END: เพิ่มตัวเลือกคำถวายพระพร -->
+                        <textarea id="custom-blessing" name="custom-blessing" rows="4" class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-amber-500 hidden" placeholder="พิมพ์คำถวายพระพร..."></textarea>
+                    </div>
+                    <div class="flex items-center justify-center space-x-4">
+                         <button type="button" onclick="showPage('home-page')" class="px-8 py-3 bg-gray-400 text-white text-lg font-bold rounded-lg shadow-md hover:bg-gray-500 transition-colors duration-300">
+                            กลับหน้าหลัก
+                        </button>
+                        <button type="submit" class="px-8 py-3 bg-amber-500 text-white text-lg font-bold rounded-lg shadow-md hover:bg-amber-600 transition-colors duration-300">
+                            ลงนามถวายพระพร
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- หน้าแสดงผลการลงนาม (Gallery) -->
+            <section id="gallery-page" class="p-6 md:p-12 hidden">
+                <h2 class="text-2xl md:text-3xl font-bold text-center text-amber-800 mb-8">รายนามผู้ถวายพระพรชัยมงคล</h2>
+                <div id="gallery-content">
+                    <!-- เนื้อหาจะถูกสร้างโดย JavaScript -->
+                </div>
+                <div class="text-center mt-8">
+                    <button onclick="showPage('home-page')" class="px-8 py-3 bg-amber-500 text-white text-lg font-bold rounded-lg shadow-md hover:bg-amber-600 transition-colors duration-300">
+                        กลับสู่หน้าหลัก
+                    </button>
+                </div>
+            </section>
+        </main>
+
+        <footer class="text-center mt-8 text-sm text-gray-600">
+            <p>สร้างสรรค์โดย งานสื่อ นวัตกรรมและเทคโนโลยี ฝ่ายบริหารงานวิชาการ โรงเรียนสระบุรีวิทยาคม</p>
+        </footer>
+
+    </div>
+
+    <script>
+        const pages = ['home-page', 'form-page', 'gallery-page'];
+        const postWebhookURL = 'https://n8n.meekroo.org/webhook/c34a77ee-3389-4feb-be68-9a2b73987fad';
+        const getWebhookURL = 'https://n8n.meekroo.org/webhook/01c56d0f-a07a-4a6d-aee9-8626e7029d3f';
+
+        function showPage(pageId) {
+            pages.forEach(id => {
+                const page = document.getElementById(id);
+                page.classList.toggle('hidden', id !== pageId);
+            });
+            if (pageId === 'gallery-page') {
+                fetchAndRenderBlessings();
+            }
+            window.scrollTo(0, 0);
+        }
+
+        const blessingSelect = document.getElementById('blessing-message');
+        const customBlessingTextarea = document.getElementById('custom-blessing');
+        blessingSelect.addEventListener('change', function() {
+            const isCustom = this.value === 'custom';
+            customBlessingTextarea.classList.toggle('hidden', !isCustom);
+            customBlessingTextarea.required = isCustom;
+        });
+
+        const form = document.getElementById('blessing-form');
+        form.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const submitButton = this.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.textContent = 'กำลังส่ง...';
+
+            const formData = new FormData(form);
+            const fullname = formData.get('fullname');
+            const organization = formData.get('organization');
+            let message = formData.get('blessing-message');
+            if (message === 'custom') {
+                message = formData.get('custom-blessing');
+            }
+
+            if (!fullname || !message) {
+                alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+                submitButton.disabled = false;
+                submitButton.textContent = 'ลงนามถวายพระพร';
+                return;
+            }
+
+            try {
+                await fetch(postWebhookURL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ fullname, organization, message })
+                });
+                form.reset();
+                customBlessingTextarea.classList.add('hidden');
+                showPage('gallery-page');
+            } catch (error) {
+                console.error('Error sending to webhook:', error);
+                alert('เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่อีกครั้ง');
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = 'ลงนามถวายพระพร';
+            }
+        });
+
+        async function fetchAndRenderBlessings() {
+            const galleryContent = document.getElementById('gallery-content');
+            galleryContent.innerHTML = `
+                <div class="flex flex-col items-center justify-center p-10">
+                    <div class="loader"></div>
+                    <p class="mt-4 text-lg text-gray-600">กำลังโหลดข้อมูล...</p>
+                </div>`;
+
+            try {
+                const response = await fetch(getWebhookURL);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                
+                const responseData = await response.json();
+                console.log("Raw data from webhook:", JSON.stringify(responseData, null, 2));
+
+                let rawArray = [];
+                if (Array.isArray(responseData)) {
+                    rawArray = responseData;
+                } else if (responseData && Array.isArray(responseData.data)) {
+                    rawArray = responseData.data;
+                } else if (responseData && typeof responseData === 'object' && responseData !== null) {
+                    rawArray = Object.values(responseData);
+                }
+
+                if (rawArray.length === 0) {
+                    galleryContent.innerHTML = '<p class="text-center text-gray-600 py-10">ยังไม่มีผู้ลงนามถวายพระพร</p>';
+                    return;
+                }
+
+                const blessings = rawArray.map(item => {
+                    if (item && typeof item.body === 'string') {
+                        try {
+                            return JSON.parse(item.body);
+                        } catch (e) {
+                            console.error("Failed to parse item body:", item.body, e);
+                            return null;
+                        }
+                    }
+                    return item;
+                }).filter(item => item !== null);
+
+                if (blessings.length === 0) {
+                    galleryContent.innerHTML = '<p class="text-center text-gray-600 py-10">ไม่พบข้อมูลที่สามารถแสดงผลได้</p>';
+                    return;
+                }
+
+                const galleryGrid = document.createElement('div');
+                galleryGrid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6';
+                
+                blessings.reverse().forEach(item => {
+                    if (!item || typeof item !== 'object') return;
+
+                    const fullname = item.fullname || 'ไม่ระบุชื่อ';
+                    const organization = item.organization || '';
+                    const message = item.message || 'ไม่มีข้อความ';
+
+                    const card = document.createElement('div');
+                    card.className = 'bg-yellow-50 border border-amber-200 rounded-lg p-6 shadow-lg transition-transform hover:scale-105';
+                    const orgHtml = organization ? `<p class="text-sm text-gray-600 font-semibold">${organization}</p>` : '';
+
+                    card.innerHTML = `
+                        <p class="text-lg text-amber-800 mb-2">“${message}”</p>
+                        <hr class="my-3 border-amber-200">
+                        <p class="text-md font-bold text-gray-800">${fullname}</p>
+                        ${orgHtml}`;
+                    galleryGrid.appendChild(card);
+                });
+                
+                galleryContent.innerHTML = '';
+                galleryContent.appendChild(galleryGrid);
+
+            } catch (error) {
+                console.error('Error fetching blessings:', error);
+                galleryContent.innerHTML = `
+                    <p class="text-center text-red-600 py-10">
+                        เกิดข้อผิดพลาดในการดึงข้อมูล กรุณาลองอีกครั้งในภายหลัง
+                    </p>`;
+            }
+        }
+    </script>
+</body>
+</html>
