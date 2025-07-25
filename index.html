@@ -37,6 +37,37 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        /* START: Custom Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes zoomIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Utility classes for animations */
+        .anim-fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+        .anim-fade-in-up {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+        .anim-zoom-in {
+            animation: zoomIn 0.8s ease-out forwards;
+        }
+
+        /* Hide elements initially for animation */
+        .animate-on-load {
+            opacity: 0;
+        }
+        /* END: Custom Animations */
     </style>
 </head>
 <body class="thai-pattern-bg">
@@ -44,7 +75,7 @@
     <div id="app" class="container mx-auto p-4 md:p-8 max-w-5xl">
         
         <!-- ส่วน Header กลาง -->
-        <header class="text-center mb-8">
+        <header class="text-center mb-8 animate-on-load" style="animation-delay: 100ms;">
             <div class="inline-block bg-white bg-opacity-70 p-4 rounded-lg">
                 <img src="https://inspector.rta.mi.th/igd67/images/king10logo/3.png" 
                      alt="ตราพระปรมาภิไธยย่อ ว.ป.ร."
@@ -55,24 +86,24 @@
             </div>
         </header>
 
-        <main id="main-content" class="bg-white bg-opacity-90 shadow-2xl rounded-2xl overflow-hidden min-h-[500px]">
+        <main id="main-content" class="bg-white bg-opacity-90 shadow-2xl rounded-2xl overflow-hidden min-h-[500px] transition-opacity duration-300">
             <!-- หน้าหลัก (Home) -->
             <section id="home-page" class="p-6 md:p-12 text-center flex flex-col items-center">
-                <div class="flex justify-center">
+                <div class="flex justify-center animate-on-load" style="animation-delay: 200ms;">
                     <img src="https://www.royaloffice.th/wp-content/uploads/2025/07/%E0%B8%81%E0%B8%81%E0%B8%A7-0201.1-63-2568-1-nr-scaled.webp" 
                          alt="พระบรมฉายาลักษณ์พระบาทสมเด็จพระเจ้าอยู่หัว" 
                          class="rounded-xl shadow-lg w-full max-w-md border-4 border-amber-300"
                          onerror="this.onerror=null;this.src='https://placehold.co/800x1000/e9d5a1/333333?text=พระบรมฉายาลักษณ์';">
                 </div>
-                <div class="mt-8">
+                <div class="mt-8 animate-on-load" style="animation-delay: 400ms;">
                     <p class="text-2xl md:text-3xl font-bold text-amber-800">ขอพระองค์ทรงพระเจริญยิ่งยืนนาน</p>
                     <p class="text-lg md:text-xl text-gray-700 mt-2">ด้วยเกล้าด้วยกระหม่อม ขอเดชะ</p>
                 </div>
-                <div class="flex flex-col sm:flex-row gap-4 mt-8">
-                    <button onclick="showPage('form-page')" class="px-8 py-4 bg-amber-500 text-white text-xl font-bold rounded-lg shadow-md hover:bg-amber-600 transition-colors duration-300">
+                <div class="flex flex-col sm:flex-row gap-4 mt-8 animate-on-load" style="animation-delay: 600ms;">
+                    <button onclick="showPage('form-page')" class="px-8 py-4 bg-amber-500 text-white text-xl font-bold rounded-lg shadow-md hover:bg-amber-600 transition-all duration-300 transform hover:scale-105">
                         ร่วมลงนามถวายพระพร
                     </button>
-                    <button onclick="showPage('gallery-page')" class="px-8 py-4 bg-sky-600 text-white text-xl font-bold rounded-lg shadow-md hover:bg-sky-700 transition-colors duration-300">
+                    <button onclick="showPage('gallery-page')" class="px-8 py-4 bg-sky-600 text-white text-xl font-bold rounded-lg shadow-md hover:bg-sky-700 transition-all duration-300 transform hover:scale-105">
                         ดูรายนามผู้ถวายพระพร
                     </button>
                 </div>
@@ -92,7 +123,6 @@
                     </div>
                     <div class="mb-6">
                         <label for="blessing-message" class="block text-gray-700 text-lg font-bold mb-2">คำถวายพระพร <span class="text-red-500">*</span></label>
-                        <!-- START: เพิ่มตัวเลือกคำถวายพระพร -->
                         <select id="blessing-message" name="blessing-message" class="shadow border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-amber-500 mb-2">
                             <option value="ขอพระองค์ทรงพระเจริญ ด้วยเกล้าด้วยกระหม่อม ขอเดชะ">ขอพระองค์ทรงพระเจริญ</option>
                             <option value="ขอพระราชทานถวายพระพรชัยมงคล ขอพระองค์ทรงพระเจริญ ด้วยเกล้าด้วยกระหม่อม ขอเดชะ">ขอพระราชทานถวายพระพรชัยมงคล</option>
@@ -103,14 +133,13 @@
                             <option value="ขอพระองค์ทรงเป็นมิ่งขวัญร่มเกล้าของปวงชนชาวไทยสืบไป">ขอพระองค์ทรงเป็นมิ่งขวัญร่มเกล้าของปวงชนชาวไทยสืบไป</option>
                             <option value="custom">พิมพ์ข้อความเอง</option>
                         </select>
-                        <!-- END: เพิ่มตัวเลือกคำถวายพระพร -->
                         <textarea id="custom-blessing" name="custom-blessing" rows="4" class="shadow appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-amber-500 hidden" placeholder="พิมพ์คำถวายพระพร..."></textarea>
                     </div>
                     <div class="flex items-center justify-center space-x-4">
-                         <button type="button" onclick="showPage('home-page')" class="px-8 py-3 bg-gray-400 text-white text-lg font-bold rounded-lg shadow-md hover:bg-gray-500 transition-colors duration-300">
+                         <button type="button" onclick="showPage('home-page')" class="px-8 py-3 bg-gray-400 text-white text-lg font-bold rounded-lg shadow-md hover:bg-gray-500 transition-all duration-300 transform hover:scale-105">
                             กลับหน้าหลัก
                         </button>
-                        <button type="submit" class="px-8 py-3 bg-amber-500 text-white text-lg font-bold rounded-lg shadow-md hover:bg-amber-600 transition-colors duration-300">
+                        <button type="submit" class="px-8 py-3 bg-amber-500 text-white text-lg font-bold rounded-lg shadow-md hover:bg-amber-600 transition-all duration-300 transform hover:scale-105">
                             ลงนามถวายพระพร
                         </button>
                     </div>
@@ -124,14 +153,14 @@
                     <!-- เนื้อหาจะถูกสร้างโดย JavaScript -->
                 </div>
                 <div class="text-center mt-8">
-                    <button onclick="showPage('home-page')" class="px-8 py-3 bg-amber-500 text-white text-lg font-bold rounded-lg shadow-md hover:bg-amber-600 transition-colors duration-300">
+                    <button onclick="showPage('home-page')" class="px-8 py-3 bg-amber-500 text-white text-lg font-bold rounded-lg shadow-md hover:bg-amber-600 transition-all duration-300 transform hover:scale-105">
                         กลับสู่หน้าหลัก
                     </button>
                 </div>
             </section>
         </main>
 
-        <footer class="text-center mt-8 text-sm text-gray-600">
+        <footer class="text-center mt-8 text-sm text-gray-600 anim-fade-in-up" style="animation-delay: 800ms;">
             <p>สร้างสรรค์โดย งานสื่อ นวัตกรรมและเทคโนโลยี ฝ่ายบริหารงานวิชาการ โรงเรียนสระบุรีวิทยาคม</p>
         </footer>
 
@@ -141,15 +170,44 @@
         const pages = ['home-page', 'form-page', 'gallery-page'];
         const postWebhookURL = 'https://n8n.meekroo.org/webhook/c34a77ee-3389-4feb-be68-9a2b73987fad';
         const getWebhookURL = 'https://n8n.meekroo.org/webhook/01c56d0f-a07a-4a6d-aee9-8626e7029d3f';
+        const mainContent = document.getElementById('main-content');
+
+        // Function to apply animations on load
+        function applyLoadAnimations() {
+            const elements = document.querySelectorAll('.animate-on-load');
+            elements.forEach(el => {
+                // Determine animation type from class list or use a default
+                if (el.querySelector('img')) {
+                     el.classList.add('anim-zoom-in');
+                } else {
+                     el.classList.add('anim-fade-in-up');
+                }
+            });
+        }
 
         function showPage(pageId) {
-            pages.forEach(id => {
-                const page = document.getElementById(id);
-                page.classList.toggle('hidden', id !== pageId);
-            });
-            if (pageId === 'gallery-page') {
-                fetchAndRenderBlessings();
-            }
+            mainContent.style.opacity = '0'; // Start fade out
+
+            setTimeout(() => {
+                pages.forEach(id => {
+                    const page = document.getElementById(id);
+                    page.classList.toggle('hidden', id !== pageId);
+                });
+
+                // Add animation to the new page
+                const newPage = document.getElementById(pageId);
+                newPage.classList.add('anim-fade-in');
+                
+                // Remove the animation class after it's done to allow re-triggering
+                setTimeout(() => newPage.classList.remove('anim-fade-in'), 600);
+
+
+                if (pageId === 'gallery-page') {
+                    fetchAndRenderBlessings();
+                }
+                mainContent.style.opacity = '1'; // Fade in
+            }, 300); // Wait for fade out to complete
+
             window.scrollTo(0, 0);
         }
 
@@ -214,8 +272,7 @@
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 
                 const responseData = await response.json();
-                console.log("Raw data from webhook:", JSON.stringify(responseData, null, 2));
-
+                
                 let rawArray = [];
                 if (Array.isArray(responseData)) {
                     rawArray = responseData;
@@ -226,31 +283,26 @@
                 }
 
                 if (rawArray.length === 0) {
-                    galleryContent.innerHTML = '<p class="text-center text-gray-600 py-10">ยังไม่มีผู้ลงนามถวายพระพร</p>';
+                    galleryContent.innerHTML = '<p class="text-center text-gray-600 py-10 anim-fade-in">ยังไม่มีผู้ลงนามถวายพระพร</p>';
                     return;
                 }
 
                 const blessings = rawArray.map(item => {
                     if (item && typeof item.body === 'string') {
-                        try {
-                            return JSON.parse(item.body);
-                        } catch (e) {
-                            console.error("Failed to parse item body:", item.body, e);
-                            return null;
-                        }
+                        try { return JSON.parse(item.body); } catch (e) { return null; }
                     }
                     return item;
                 }).filter(item => item !== null);
 
                 if (blessings.length === 0) {
-                    galleryContent.innerHTML = '<p class="text-center text-gray-600 py-10">ไม่พบข้อมูลที่สามารถแสดงผลได้</p>';
+                    galleryContent.innerHTML = '<p class="text-center text-gray-600 py-10 anim-fade-in">ไม่พบข้อมูลที่สามารถแสดงผลได้</p>';
                     return;
                 }
 
                 const galleryGrid = document.createElement('div');
                 galleryGrid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6';
                 
-                blessings.reverse().forEach(item => {
+                blessings.reverse().forEach((item, index) => {
                     if (!item || typeof item !== 'object') return;
 
                     const fullname = item.fullname || 'ไม่ระบุชื่อ';
@@ -258,7 +310,9 @@
                     const message = item.message || 'ไม่มีข้อความ';
 
                     const card = document.createElement('div');
-                    card.className = 'bg-yellow-50 border border-amber-200 rounded-lg p-6 shadow-lg transition-transform hover:scale-105';
+                    card.className = 'bg-yellow-50 border border-amber-200 rounded-lg p-6 shadow-lg opacity-0 anim-fade-in-up';
+                    // Staggered animation delay
+                    card.style.animationDelay = `${index * 100}ms`;
                     const orgHtml = organization ? `<p class="text-sm text-gray-600 font-semibold">${organization}</p>` : '';
 
                     card.innerHTML = `
@@ -275,11 +329,14 @@
             } catch (error) {
                 console.error('Error fetching blessings:', error);
                 galleryContent.innerHTML = `
-                    <p class="text-center text-red-600 py-10">
+                    <p class="text-center text-red-600 py-10 anim-fade-in">
                         เกิดข้อผิดพลาดในการดึงข้อมูล กรุณาลองอีกครั้งในภายหลัง
                     </p>`;
             }
         }
+        
+        // Trigger animations on initial page load
+        document.addEventListener('DOMContentLoaded', applyLoadAnimations);
     </script>
 </body>
 </html>
