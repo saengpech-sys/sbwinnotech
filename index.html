@@ -14,73 +14,56 @@
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
     
     <style>
-        /* ใช้ฟอนต์ Sarabun เป็นหลัก */
-        body {
-            font-family: 'Sarabun', sans-serif;
-        }
-        /* สไตล์สำหรับพื้นหลังลายไทย */
+        body { font-family: 'Sarabun', sans-serif; scroll-behavior: smooth; }
         .thai-pattern-bg {
             background-image: url('https://www.toptal.com/designers/subtlepatterns/uploads/thai-style.png');
             background-repeat: repeat;
-            background-color: #fefce8; /* bg-yellow-50 */
+            background-color: #fefce8;
         }
-        /* Animation สำหรับ Loading Spinner */
         .loader {
-            border: 5px solid #f3f3f3; /* Light grey */
-            border-top: 5px solid #f59e0b; /* Amber 500 */
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #f59e0b;
             border-radius: 50%;
             width: 50px;
             height: 50px;
             animation: spin 1s linear infinite;
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes zoomIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        .anim-fade-in { animation: fadeIn 0.6s ease-out forwards; }
+        .anim-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
+        .anim-zoom-in { animation: zoomIn 0.8s ease-out forwards; }
+        .animate-on-load { opacity: 0; }
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1000; opacity: 0; transition: opacity 0.3s ease-out; pointer-events: none;
         }
-
-        /* START: Custom Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-content {
+            background: white; padding: 2rem; border-radius: 1rem;
+            max-width: 500px; width: 90%; text-align: center;
+            transform: scale(0.95); transition: transform 0.3s ease-out;
         }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .modal-overlay.active .modal-content { transform: scale(1); }
+        #back-to-top {
+            position: fixed; bottom: 20px; right: 20px;
+            opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s;
+            z-index: 500;
         }
-        @keyframes zoomIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        /* Utility classes for animations */
-        .anim-fade-in {
-            animation: fadeIn 0.6s ease-out forwards;
-        }
-        .anim-fade-in-up {
-            animation: fadeInUp 0.6s ease-out forwards;
-        }
-        .anim-zoom-in {
-            animation: zoomIn 0.8s ease-out forwards;
-        }
-
-        /* Hide elements initially for animation */
-        .animate-on-load {
-            opacity: 0;
-        }
-        /* END: Custom Animations */
+        #back-to-top.visible { opacity: 1; visibility: visible; }
     </style>
 </head>
 <body class="thai-pattern-bg">
 
     <div id="app" class="container mx-auto p-4 md:p-8 max-w-5xl">
         
-        <!-- ส่วน Header กลาง -->
         <header class="text-center mb-8 animate-on-load" style="animation-delay: 100ms;">
             <div class="inline-block bg-white bg-opacity-70 p-4 rounded-lg">
-                <img src="https://inspector.rta.mi.th/igd67/images/king10logo/3.png" 
-                     alt="ตราพระปรมาภิไธยย่อ ว.ป.ร."
-                     class="h-24 md:h-32 mx-auto mb-4"
-                     onerror="this.onerror=null;this.src='https://placehold.co/300x150/e9d5a1/333333?text=ตราพระปรมาภิไธยย่อ';">
+                <img src="https://inspector.rta.mi.th/igd67/images/king10logo/3.png" alt="ตราพระปรมาภิไธยย่อ ว.ป.ร." class="h-24 md:h-32 mx-auto mb-4" onerror="this.onerror=null;this.src='https://placehold.co/300x150/e9d5a1/333333?text=ตราพระปรมาภิไธยย่อ';">
                 <h1 class="text-xl md:text-3xl font-bold text-amber-800 mt-2">เว็บไซต์ลงนามถวายพระพรชัยมงคล</h1>
                 <p class="text-md md:text-lg text-amber-700">พระบาทสมเด็จพระปรเมนทรรามาธิบดีศรีสินทรมหาวชิราลงกรณ พระวชิรเกล้าเจ้าอยู่หัว</p>
             </div>
@@ -90,10 +73,7 @@
             <!-- หน้าหลัก (Home) -->
             <section id="home-page" class="p-6 md:p-12 text-center flex flex-col items-center">
                 <div class="flex justify-center animate-on-load" style="animation-delay: 200ms;">
-                    <img src="https://www.royaloffice.th/wp-content/uploads/2025/07/%E0%B8%81%E0%B8%81%E0%B8%A7-0201.1-63-2568-1-nr-scaled.webp" 
-                         alt="พระบรมฉายาลักษณ์พระบาทสมเด็จพระเจ้าอยู่หัว" 
-                         class="rounded-xl shadow-lg w-full max-w-md border-4 border-amber-300"
-                         onerror="this.onerror=null;this.src='https://placehold.co/800x1000/e9d5a1/333333?text=พระบรมฉายาลักษณ์';">
+                    <img src="https://www.royaloffice.th/wp-content/uploads/2025/07/%E0%B8%81%E0%B8%81%E0%B8%A7-0201.1-63-2568-1-nr-scaled.webp" alt="พระบรมฉายาลักษณ์พระบาทสมเด็จพระเจ้าอยู่หัว" class="rounded-xl shadow-lg w-full max-w-md border-4 border-amber-300" onerror="this.onerror=null;this.src='https://placehold.co/800x1000/e9d5a1/333333?text=พระบรมฉายาลักษณ์';">
                 </div>
                 <div class="mt-8 animate-on-load" style="animation-delay: 400ms;">
                     <p class="text-2xl md:text-3xl font-bold text-amber-800">ขอพระองค์ทรงพระเจริญยิ่งยืนนาน</p>
@@ -124,10 +104,10 @@
                     <div class="mb-6">
                         <label for="blessing-message" class="block text-gray-700 text-lg font-bold mb-2">คำถวายพระพร <span class="text-red-500">*</span></label>
                         <select id="blessing-message" name="blessing-message" class="shadow border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-amber-500 mb-2">
-                            <option value="ขอพระองค์ทรงพระเจริญ ด้วยเกล้าด้วยกระหม่อม ขอเดชะ">ขอพระองค์ทรงพระเจริญ</option>
-                            <option value="ขอพระราชทานถวายพระพรชัยมงคล ขอพระองค์ทรงพระเจริญ ด้วยเกล้าด้วยกระหม่อม ขอเดชะ">ขอพระราชทานถวายพระพรชัยมงคล</option>
-                            <option value="ทรงพระเกษมสำราญ มีพระพลานามัยแข็งแรงสมบูรณ์ ด้วยเกล้าด้วยกระหม่อม ขอเดชะ">ทรงพระเกษมสำราญ มีพระพลานามัยแข็งแรงสมบูรณ์</option>
-                            <option value="ขอพระองค์ทรงมีพระชนมายุยิ่งยืนนาน สถิตเป็นมิ่งขวัญของปวงชนชาวไทยตลอดไป">ขอพระองค์ทรงมีพระชนมายุยิ่งยืนนาน</option>
+                            <option value="ขอพระองค์ทรงพระเจริญ">ขอพระองค์ทรงพระเจริญ</option>
+                            <option value="ขอพระราชทานถวายพระพรชัยมงคล">ขอพระราชทานถวายพระพรชัยมงคล</option>
+                            <option value="ทรงพระเกษมสำราญ มีพระพลานามัยแข็งแรงสมบูรณ์">ทรงพระเกษมสำราญ มีพระพลานามัยแข็งแรงสมบูรณ์</option>
+                            <option value="ขอพระองค์ทรงมีพระชนมายุยิ่งยืนนาน">ขอพระองค์ทรงมีพระชนมายุยิ่งยืนนาน</option>
                             <option value="ขออานุภาพแห่งคุณพระศรีรัตนตรัย โปรดดลบันดาลให้ทรงพระเจริญ">ขออานุภาพแห่งคุณพระศรีรัตนตรัย โปรดดลบันดาลให้ทรงพระเจริญ</option>
                             <option value="ขอถวายพระพรชัยมงคล ขอพระองค์ทรงพระเจริญ">ขอถวายพระพรชัยมงคล</option>
                             <option value="ขอพระองค์ทรงเป็นมิ่งขวัญร่มเกล้าของปวงชนชาวไทยสืบไป">ขอพระองค์ทรงเป็นมิ่งขวัญร่มเกล้าของปวงชนชาวไทยสืบไป</option>
@@ -148,15 +128,17 @@
 
             <!-- หน้าแสดงผลการลงนาม (Gallery) -->
             <section id="gallery-page" class="p-6 md:p-12 hidden">
-                <h2 class="text-2xl md:text-3xl font-bold text-center text-amber-800 mb-8">รายนามผู้ถวายพระพรชัยมงคล</h2>
-                <div id="gallery-content" class="min-h-[400px]">
-                    <!-- เนื้อหาจะถูกสร้างโดย JavaScript -->
+                <div class="md:flex justify-between items-center mb-8 text-center md:text-left">
+                    <div>
+                        <h2 class="text-2xl md:text-3xl font-bold text-amber-800">รายนามผู้ถวายพระพรชัยมงคล</h2>
+                        <p id="blessing-counter" class="text-gray-600 mt-1">จำนวนทั้งหมด: กำลังโหลด...</p>
+                    </div>
+                    <div class="mt-4 md:mt-0">
+                        <input type="text" id="search-input" placeholder="ค้นหารายชื่อ..." class="shadow appearance-none border rounded-lg w-full md:w-64 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-amber-500">
+                    </div>
                 </div>
-                <!-- START: Pagination Controls Container -->
-                <div id="pagination-controls" class="flex justify-center items-center space-x-2 mt-8">
-                    <!-- Pagination buttons will be inserted here by JS -->
-                </div>
-                <!-- END: Pagination Controls Container -->
+                <div id="gallery-content" class="min-h-[400px]"></div>
+                <div id="pagination-controls" class="flex justify-center items-center space-x-2 mt-8"></div>
                 <div class="text-center mt-8">
                     <button onclick="showPage('home-page')" class="px-8 py-3 bg-amber-500 text-white text-lg font-bold rounded-lg shadow-md hover:bg-amber-600 transition-all duration-300 transform hover:scale-105">
                         กลับสู่หน้าหลัก
@@ -168,78 +150,99 @@
         <footer class="text-center mt-8 text-sm text-gray-600 anim-fade-in-up" style="animation-delay: 800ms;">
             <p>สร้างสรรค์โดย งานสื่อ นวัตกรรมและเทคโนโลยี ฝ่ายบริหารงานวิชาการ โรงเรียนสระบุรีวิทยาคม</p>
         </footer>
-
     </div>
 
+    <!-- Success Modal -->
+    <div id="success-modal" class="modal-overlay">
+        <div class="modal-content">
+            <svg class="w-16 h-16 text-green-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <h3 class="text-2xl font-bold text-gray-800 mb-2">ลงนามสำเร็จ</h3>
+            <p id="modal-user-greeting" class="text-gray-700"></p>
+            <p class="text-gray-600 mb-6">ขอขอบคุณที่ร่วมลงนามถวายพระพรชัยมงคล</p>
+            <div id="social-share-buttons" class="flex justify-center space-x-4 mb-6"></div>
+            <button onclick="closeSuccessModal()" class="px-8 py-3 bg-amber-500 text-white text-lg font-bold rounded-lg shadow-md hover:bg-amber-600">ปิด</button>
+        </div>
+    </div>
+    
+    <!-- Back to Top Button -->
+    <button id="back-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="p-3 rounded-full bg-amber-500 text-white shadow-lg hover:bg-amber-600 transition-all">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
+    </button>
+
     <script>
+        // --- GLOBAL VARIABLES ---
         const pages = ['home-page', 'form-page', 'gallery-page'];
         const postWebhookURL = 'https://n8n.meekroo.org/webhook/c34a77ee-3389-4feb-be68-9a2b73987fad';
         const getWebhookURL = 'https://n8n.meekroo.org/webhook/01c56d0f-a07a-4a6d-aee9-8626e7029d3f';
         const mainContent = document.getElementById('main-content');
-
-        // START: Pagination State
+        const successModal = document.getElementById('success-modal');
+        const backToTopButton = document.getElementById('back-to-top');
+        
         let currentPage = 1;
-        const itemsPerPage = 9; // 3x3 grid
-        let allBlessings = []; // Cache for all fetched blessings
-        // END: Pagination State
+        const itemsPerPage = 9;
+        let allBlessings = [];
+        let filteredBlessings = [];
 
-        function applyLoadAnimations() {
-            const elements = document.querySelectorAll('.animate-on-load');
-            elements.forEach(el => {
-                if (el.querySelector('img')) {
-                     el.classList.add('anim-zoom-in');
-                } else {
-                     el.classList.add('anim-fade-in-up');
-                }
-            });
+        // --- INITIALIZATION ---
+        function initialize() {
+            applyLoadAnimations();
+            setupEventListeners();
         }
 
+        // --- EVENT LISTENERS ---
+        function setupEventListeners() {
+            document.getElementById('blessing-message').addEventListener('change', function() {
+                const isCustom = this.value === 'custom';
+                document.getElementById('custom-blessing').classList.toggle('hidden', !isCustom);
+                document.getElementById('custom-blessing').required = isCustom;
+            });
+
+            document.getElementById('form-page').addEventListener('submit', handleFormSubmit);
+
+            document.getElementById('search-input').addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                filteredBlessings = allBlessings.filter(item => 
+                    (item.fullname || '').toLowerCase().includes(searchTerm) || 
+                    (item.organization || '').toLowerCase().includes(searchTerm)
+                );
+                currentPage = 1;
+                displayCurrentPage();
+            });
+            
+            window.addEventListener('scroll', () => {
+                backToTopButton.classList.toggle('visible', window.scrollY > 300);
+            });
+        }
+        
+        // --- CORE LOGIC ---
         function showPage(pageId) {
             mainContent.style.opacity = '0';
             setTimeout(() => {
-                pages.forEach(id => {
-                    document.getElementById(id).classList.toggle('hidden', id !== pageId);
-                });
+                pages.forEach(id => document.getElementById(id).classList.toggle('hidden', id !== pageId));
                 const newPage = document.getElementById(pageId);
                 newPage.classList.add('anim-fade-in');
                 setTimeout(() => newPage.classList.remove('anim-fade-in'), 600);
-
-                if (pageId === 'gallery-page') {
-                    // Reset to page 1 and fetch data if not already cached
-                    currentPage = 1;
-                    if (allBlessings.length === 0) {
-                        fetchAndRenderBlessings();
-                    } else {
-                        displayCurrentPage(); // Use cached data
-                    }
-                }
                 mainContent.style.opacity = '1';
+                if (pageId === 'gallery-page') {
+                    currentPage = 1;
+                    document.getElementById('search-input').value = '';
+                    fetchAndRenderBlessings();
+                }
             }, 300);
             window.scrollTo(0, 0);
         }
 
-        const blessingSelect = document.getElementById('blessing-message');
-        const customBlessingTextarea = document.getElementById('custom-blessing');
-        blessingSelect.addEventListener('change', function() {
-            const isCustom = this.value === 'custom';
-            customBlessingTextarea.classList.toggle('hidden', !isCustom);
-            customBlessingTextarea.required = isCustom;
-        });
-
-        const form = document.getElementById('blessing-form');
-        form.addEventListener('submit', async function(event) {
+        async function handleFormSubmit(event) {
             event.preventDefault();
-            const submitButton = this.querySelector('button[type="submit"]');
+            const submitButton = event.target.querySelector('button[type="submit"]');
             submitButton.disabled = true;
             submitButton.textContent = 'กำลังส่ง...';
 
-            const formData = new FormData(form);
+            const formData = new FormData(event.target);
             const fullname = formData.get('fullname');
             const organization = formData.get('organization');
             let message = formData.get('blessing-message');
-            if (message === 'custom') {
-                message = formData.get('custom-blessing');
-            }
+            if (message === 'custom') message = formData.get('custom-blessing');
 
             if (!fullname || !message) {
                 alert('กรุณากรอกข้อมูลให้ครบถ้วน');
@@ -254,10 +257,9 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ fullname, organization, message })
                 });
-                form.reset();
-                customBlessingTextarea.classList.add('hidden');
-                allBlessings = []; // Clear cache to force a refetch
-                showPage('gallery-page');
+                event.target.reset();
+                document.getElementById('custom-blessing').classList.add('hidden');
+                openSuccessModal(fullname);
             } catch (error) {
                 console.error('Error sending to webhook:', error);
                 alert('เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่อีกครั้ง');
@@ -265,91 +267,11 @@
                 submitButton.disabled = false;
                 submitButton.textContent = 'ลงนามถวายพระพร';
             }
-        });
-
-        function displayCurrentPage() {
-            const galleryContent = document.getElementById('gallery-content');
-            const paginationControls = document.getElementById('pagination-controls');
-            galleryContent.innerHTML = '';
-            paginationControls.innerHTML = '';
-
-            if (allBlessings.length === 0) {
-                galleryContent.innerHTML = '<p class="text-center text-gray-600 py-10 anim-fade-in">ยังไม่มีผู้ลงนามถวายพระพร</p>';
-                return;
-            }
-
-            const startIndex = (currentPage - 1) * itemsPerPage;
-            const endIndex = startIndex + itemsPerPage;
-            const paginatedItems = allBlessings.slice(startIndex, endIndex);
-
-            const galleryGrid = document.createElement('div');
-            galleryGrid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6';
-
-            paginatedItems.forEach((item, index) => {
-                if (!item || typeof item !== 'object') return;
-                const fullname = item.fullname || 'ไม่ระบุชื่อ';
-                const organization = item.organization || '';
-                const message = item.message || 'ไม่มีข้อความ';
-
-                const card = document.createElement('div');
-                card.className = 'bg-yellow-50 border border-amber-200 rounded-lg p-6 shadow-lg opacity-0 anim-fade-in-up';
-                card.style.animationDelay = `${index * 100}ms`;
-                const orgHtml = organization ? `<p class="text-sm text-gray-600 font-semibold">${organization}</p>` : '';
-
-                card.innerHTML = `
-                    <p class="text-lg text-amber-800 mb-2">“${message}”</p>
-                    <hr class="my-3 border-amber-200">
-                    <p class="text-md font-bold text-gray-800">${fullname}</p>
-                    ${orgHtml}`;
-                galleryGrid.appendChild(card);
-            });
-            galleryContent.appendChild(galleryGrid);
-
-            renderPaginationControls();
-        }
-
-        function renderPaginationControls() {
-            const paginationControls = document.getElementById('pagination-controls');
-            const totalPages = Math.ceil(allBlessings.length / itemsPerPage);
-
-            if (totalPages <= 1) return; // Don't show controls if only one page
-
-            // Previous Button
-            const prevButton = document.createElement('button');
-            prevButton.innerHTML = '&laquo; ก่อนหน้า';
-            prevButton.className = 'px-4 py-2 rounded-lg bg-white border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed';
-            if (currentPage === 1) prevButton.disabled = true;
-            prevButton.onclick = () => {
-                currentPage--;
-                displayCurrentPage();
-            };
-            paginationControls.appendChild(prevButton);
-
-            // Page Number Info
-            const pageInfo = document.createElement('span');
-            pageInfo.className = 'px-4 py-2 text-gray-700';
-            pageInfo.textContent = `หน้า ${currentPage} / ${totalPages}`;
-            paginationControls.appendChild(pageInfo);
-
-            // Next Button
-            const nextButton = document.createElement('button');
-            nextButton.innerHTML = 'ถัดไป &raquo;';
-            nextButton.className = 'px-4 py-2 rounded-lg bg-white border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed';
-            if (currentPage === totalPages) nextButton.disabled = true;
-            nextButton.onclick = () => {
-                currentPage++;
-                displayCurrentPage();
-            };
-            paginationControls.appendChild(nextButton);
         }
 
         async function fetchAndRenderBlessings() {
             const galleryContent = document.getElementById('gallery-content');
-            galleryContent.innerHTML = `
-                <div class="flex flex-col items-center justify-center p-10">
-                    <div class="loader"></div>
-                    <p class="mt-4 text-lg text-gray-600">กำลังโหลดข้อมูล...</p>
-                </div>`;
+            galleryContent.innerHTML = `<div class="flex flex-col items-center justify-center p-10"><div class="loader"></div><p class="mt-4 text-lg text-gray-600">กำลังโหลดข้อมูล...</p></div>`;
 
             try {
                 const response = await fetch(getWebhookURL);
@@ -357,13 +279,9 @@
                 const responseData = await response.json();
 
                 let rawArray = [];
-                if (Array.isArray(responseData)) {
-                    rawArray = responseData;
-                } else if (responseData && Array.isArray(responseData.data)) {
-                    rawArray = responseData.data;
-                } else if (responseData && typeof responseData === 'object' && responseData !== null) {
-                    rawArray = Object.values(responseData);
-                }
+                if (Array.isArray(responseData)) rawArray = responseData;
+                else if (responseData && Array.isArray(responseData.data)) rawArray = responseData.data;
+                else if (responseData && typeof responseData === 'object' && responseData !== null) rawArray = Object.values(responseData);
 
                 const parsedBlessings = rawArray.map(item => {
                     if (item && typeof item.body === 'string') {
@@ -372,19 +290,101 @@
                     return item;
                 }).filter(item => item !== null);
                 
-                allBlessings = parsedBlessings.reverse(); // Store reversed (newest first) in cache
+                allBlessings = parsedBlessings.reverse();
+                filteredBlessings = allBlessings;
                 displayCurrentPage();
-
             } catch (error) {
                 console.error('Error fetching blessings:', error);
-                galleryContent.innerHTML = `
-                    <p class="text-center text-red-600 py-10 anim-fade-in">
-                        เกิดข้อผิดพลาดในการดึงข้อมูล กรุณาลองอีกครั้งในภายหลัง
-                    </p>`;
+                galleryContent.innerHTML = `<p class="text-center text-red-600 py-10 anim-fade-in">เกิดข้อผิดพลาดในการดึงข้อมูล กรุณาลองอีกครั้งในภายหลัง</p>`;
             }
         }
+
+        // --- UI & DISPLAY ---
+        function applyLoadAnimations() {
+            document.querySelectorAll('.animate-on-load').forEach(el => {
+                el.classList.add(el.querySelector('img') ? 'anim-zoom-in' : 'anim-fade-in-up');
+            });
+        }
+
+        function displayCurrentPage() {
+            const galleryContent = document.getElementById('gallery-content');
+            document.getElementById('blessing-counter').textContent = `ผลการค้นหา: ${filteredBlessings.length} รายการ (จากทั้งหมด ${allBlessings.length} รายการ)`;
+
+            if (filteredBlessings.length === 0) {
+                galleryContent.innerHTML = `<p class="text-center text-gray-600 py-10 anim-fade-in">${document.getElementById('search-input').value ? 'ไม่พบรายชื่อที่ค้นหา' : 'ยังไม่มีผู้ลงนามถวายพระพร'}</p>`;
+                renderPaginationControls();
+                return;
+            }
+
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const paginatedItems = filteredBlessings.slice(startIndex, startIndex + itemsPerPage);
+            const galleryGrid = document.createElement('div');
+            galleryGrid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6';
+
+            paginatedItems.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'bg-yellow-50 border border-amber-200 rounded-lg p-6 shadow-lg opacity-0 anim-fade-in-up';
+                card.style.animationDelay = `${index * 100}ms`;
+                const orgHtml = item.organization ? `<p class="text-sm text-gray-600 font-semibold">${item.organization}</p>` : '';
+                card.innerHTML = `<p class="text-lg text-amber-800 mb-2">“${item.message || 'ไม่มีข้อความ'}”</p><hr class="my-3 border-amber-200"><p class="text-md font-bold text-gray-800">${item.fullname || 'ไม่ระบุชื่อ'}</p>${orgHtml}`;
+                galleryGrid.appendChild(card);
+            });
+            galleryContent.innerHTML = '';
+            galleryContent.appendChild(galleryGrid);
+            renderPaginationControls();
+        }
+
+        function renderPaginationControls() {
+            const paginationControls = document.getElementById('pagination-controls');
+            paginationControls.innerHTML = '';
+            const totalPages = Math.ceil(filteredBlessings.length / itemsPerPage);
+            if (totalPages <= 1) return;
+
+            const createButton = (text, onClick, disabled) => {
+                const button = document.createElement('button');
+                button.innerHTML = text;
+                button.className = 'px-4 py-2 rounded-lg bg-white border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed';
+                button.disabled = disabled;
+                button.onclick = onClick;
+                return button;
+            };
+
+            paginationControls.appendChild(createButton('&laquo; ก่อนหน้า', () => { currentPage--; displayCurrentPage(); }, currentPage === 1));
+            paginationControls.appendChild(Object.assign(document.createElement('span'), { className: 'px-4 py-2 text-gray-700', textContent: `หน้า ${currentPage} / ${totalPages}` }));
+            paginationControls.appendChild(createButton('ถัดไป &raquo;', () => { currentPage++; displayCurrentPage(); }, currentPage === totalPages));
+        }
+
+        function openSuccessModal(name) {
+            document.getElementById('modal-user-greeting').textContent = `คุณ ${name}`;
+            const shareText = encodeURIComponent(`ข้าพเจ้าได้ร่วมลงนามถวายพระพรชัยมงคล พระบาทสมเด็จพระเจ้าอยู่หัว เนื่องในโอกาสมหามงคลเฉลิมพระชนมพรรษา #ทรงพระเจริญ`);
+            
+            // START: FIX for sharing URL
+            const shareUrl = encodeURIComponent('https://sbwinnotech.vercel.app/');
+            // END: FIX
+
+            const shareButtons = document.getElementById('social-share-buttons');
+            shareButtons.innerHTML = `
+                <a href="https://www.facebook.com/sharer/sharer.php?u=${shareUrl}&quote=${shareText}" target="_blank" class="p-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-colors">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95z"/></svg>
+                </a>
+                <a href="https://social-plugins.line.me/lineit/share?url=${shareUrl}&text=${shareText}" target="_blank" class="p-2 rounded-full bg-green-500 text-white hover:bg-green-600 transition-colors">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M21.928 11.607c0-5.24-4.26-9.5-9.5-9.5s-9.5 4.26-9.5 9.5c0 4.38 2.96 8.11 7 9.19v-6.3H7.23v-2.89h2.19v-2.1c0-2.16 1.32-3.34 3.25-3.34.92 0 1.72.07 1.95.1v2.58h-1.52c-1.05 0-1.25.5-1.25 1.23v1.62h2.87l-.37 2.89h-2.5v6.4c4.76-1.13 8.1-5.12 8.1-9.48z"/></svg>
+                </a>
+            `;
+            successModal.classList.add('active');
+        }
+
+        function closeSuccessModal() {
+            successModal.classList.remove('active');
+            showPage('gallery-page');
+        }
+
+        // --- GLOBAL SCOPE FUNCTIONS ---
+        window.showPage = showPage;
+        window.closeSuccessModal = closeSuccessModal;
         
-        document.addEventListener('DOMContentLoaded', applyLoadAnimations);
+        // --- START APPLICATION ---
+        initialize();
     </script>
 </body>
 </html>
