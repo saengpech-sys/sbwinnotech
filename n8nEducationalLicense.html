@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ลงทะเบียนขอ n8n Educational License</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Kanit', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .form-container {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.95);
+        }
+        
+        .success-animation {
+            animation: successPulse 2s ease-in-out;
+        }
+        
+        @keyframes successPulse {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #f39c12;
+            animation: confetti-fall 3s linear infinite;
+        }
+        
+        @keyframes confetti-fall {
+            0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+        
+        .confetti:nth-child(1) { left: 10%; animation-delay: 0s; background: #e74c3c; }
+        .confetti:nth-child(2) { left: 20%; animation-delay: 0.5s; background: #3498db; }
+        .confetti:nth-child(3) { left: 30%; animation-delay: 1s; background: #2ecc71; }
+        .confetti:nth-child(4) { left: 40%; animation-delay: 1.5s; background: #f39c12; }
+        .confetti:nth-child(5) { left: 50%; animation-delay: 2s; background: #9b59b6; }
+        .confetti:nth-child(6) { left: 60%; animation-delay: 0.3s; background: #e67e22; }
+        .confetti:nth-child(7) { left: 70%; animation-delay: 0.8s; background: #1abc9c; }
+        .confetti:nth-child(8) { left: 80%; animation-delay: 1.3s; background: #e91e63; }
+        .confetti:nth-child(9) { left: 90%; animation-delay: 1.8s; background: #34495e; }
+        
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        
+        @keyframes floating {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .slide-up {
+            animation: slideUp 0.6s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen py-8">
+    <div class="container mx-auto px-4 max-w-2xl">
+        <!-- Header -->
+        <div class="text-center mb-8 slide-up">
+            <div class="floating inline-block mb-4">
+                <div class="w-20 h-20 mx-auto bg-white rounded-full flex items-center justify-center shadow-lg">
+                    <svg class="w-12 h-12 text-purple-600" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 2L2 7v10c0 5.55 3.84 9.74 9 11 5.16-1.26 9-5.45 9-11V7l-10-5z"/>
+                        <path d="M10 17l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" fill="white"/>
+                    </svg>
+                </div>
+            </div>
+            <h1 class="text-4xl font-bold text-white mb-2">ลงทะเบียนขอ n8n Educational License</h1>
+            <p class="text-purple-100 text-lg">สำหรับการศึกษา - Version Unlimited</p>
+        </div>
+
+        <!-- Form Container -->
+        <div class="form-container rounded-2xl shadow-2xl p-8 slide-up" style="animation-delay: 0.2s;">
+            <form id="registrationForm" class="space-y-6">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">ชื่อ *</label>
+                        <input type="text" id="firstName" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
+                               placeholder="กรอกชื่อของคุณ">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">นามสกุล *</label>
+                        <input type="text" id="lastName" required 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
+                               placeholder="กรอกนามสกุลของคุณ">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">อีเมล *</label>
+                    <input type="email" id="email" required 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
+                           placeholder="กรอกอีเมลของคุณ เช่น teacher@school.ac.th">
+                </div>
+
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">กลุ่มสาระการเรียนรู้ *</label>
+                    <select id="subject" required 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300">
+                        <option value="">เลือกกลุ่มสาระการเรียนรู้</option>
+                        <option value="ภาษาไทย">ภาษาไทย</option>
+                        <option value="คณิตศาสตร์">คณิตศาสตร์</option>
+                        <option value="วิทยาศาสตร์และเทคโนโลยี">วิทยาศาสตร์และเทคโนโลยี</option>
+                        <option value="สังคมศึกษา ศาสนา และวัฒนธรรม">สังคมศึกษา ศาสนา และวัฒนธรรม</option>
+                        <option value="สุขศึกษาและพลศึกษา">สุขศึกษาและพลศึกษา</option>
+                        <option value="ศิลปะ">ศิลปะ</option>
+                        <option value="การงานอาชีพ">การงานอาชีพ</option>
+                        <option value="ภาษาต่างประเทศ">ภาษาต่างประเทศ</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">โรงเรียน *</label>
+                    <input type="text" id="school" placeholder="กรอกชื่อโรงเรียน" required 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300">
+                </div>
+
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">สังกัด *</label>
+                    <input type="text" id="affiliation" placeholder="กรอกสังกัดของโรงเรียน" required 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300">
+                </div>
+
+                <div class="bg-green-50 border-l-4 border-green-400 p-4 rounded">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-green-700">
+                                <strong>ระบบพร้อมใช้งาน:</strong> ข้อมูลจะถูกส่งไปยังระบบ n8n เพื่อดำเนินการลงทะเบียน
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" 
+                        class="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold py-4 px-6 rounded-lg hover:from-purple-700 hover:to-blue-700 transform hover:scale-105 transition-all duration-300 shadow-lg">
+                    <span id="submitText">ส่งคำขอลงทะเบียน</span>
+                    <span id="loadingText" class="hidden">กำลังส่งข้อมูล...</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Success Message (Hidden initially) -->
+        <div id="successMessage" class="hidden fixed inset-0 flex items-center justify-center z-50">
+            <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+            <div class="success-animation bg-white rounded-2xl p-8 shadow-2xl text-center relative z-10 max-w-md mx-4">
+                <div class="w-20 h-20 mx-auto mb-4 bg-green-100 rounded-full flex items-center justify-center">
+                    <svg class="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-2">ส่งคำขอสำเร็จ!</h3>
+                <p class="text-gray-600 mb-4">ข้อมูลการลงทะเบียนของคุณได้รับการบันทึกเรียบร้อยแล้ว</p>
+                <p class="text-sm text-gray-500 mb-6">ทีมงานจะติดต่อกลับภายใน 1-2 วันทำการ</p>
+                <button onclick="closeSuccess()" 
+                        class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors duration-300">
+                    ปิด
+                </button>
+            </div>
+            <!-- Confetti -->
+            <div class="confetti"></div>
+            <div class="confetti"></div>
+            <div class="confetti"></div>
+            <div class="confetti"></div>
+            <div class="confetti"></div>
+            <div class="confetti"></div>
+            <div class="confetti"></div>
+            <div class="confetti"></div>
+            <div class="confetti"></div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('registrationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Show loading state
+            const submitText = document.getElementById('submitText');
+            const loadingText = document.getElementById('loadingText');
+            const submitButton = e.target.querySelector('button[type="submit"]');
+            
+            submitText.classList.add('hidden');
+            loadingText.classList.remove('hidden');
+            submitButton.disabled = true;
+            submitButton.classList.add('opacity-75');
+            
+            // Collect form data
+            const formData = {
+                firstName: document.getElementById('firstName').value,
+                lastName: document.getElementById('lastName').value,
+                email: document.getElementById('email').value,
+                subject: document.getElementById('subject').value,
+                school: document.getElementById('school').value,
+                affiliation: document.getElementById('affiliation').value,
+                timestamp: new Date().toISOString(),
+                requestType: 'n8n Educational License - Version Unlimited'
+            };
+            
+            // Send data to webhook
+            fetch('https://n8n.meekroo.org/webhook-test/79e9c08a-3553-41d7-ba01-5baaa863928d', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => {
+                // Reset button state
+                submitText.classList.remove('hidden');
+                loadingText.classList.add('hidden');
+                submitButton.disabled = false;
+                submitButton.classList.remove('opacity-75');
+                
+                if (response.ok) {
+                    // Show success message with animation
+                    document.getElementById('successMessage').classList.remove('hidden');
+                    // Reset form
+                    this.reset();
+                } else {
+                    alert('เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่อีกครั้ง');
+                }
+            })
+            .catch(error => {
+                // Reset button state
+                submitText.classList.remove('hidden');
+                loadingText.classList.add('hidden');
+                submitButton.disabled = false;
+                submitButton.classList.remove('opacity-75');
+                
+                console.error('Error:', error);
+                alert('เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต');
+            });
+        });
+        
+        function closeSuccess() {
+            document.getElementById('successMessage').classList.add('hidden');
+        }
+        
+        // Close success message when clicking outside
+        document.getElementById('successMessage').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeSuccess();
+            }
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9718600295f54e3c',t:'MTc1NTU5MzEyOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
