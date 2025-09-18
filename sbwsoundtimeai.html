@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบประกาศเสียงตามสายอัจฉริยะ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #f0f4f8;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen">
+
+    <div class="w-full max-w-2xl bg-white rounded-xl shadow-lg p-8 space-y-6">
+        <!-- Header -->
+        <div class="text-center">
+            <h1 class="text-3xl font-bold text-gray-800">ระบบประกาศเสียงตามสายอัจฉริยะ</h1>
+            <p class="text-gray-500 mt-2">ป้อนข้อความและตั้งเวลาเพื่อประกาศเสียงอัตโนมัติ</p>
+        </div>
+
+        <!-- API Key Warning -->
+        <div id="api-key-warning" class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-md" role="alert">
+          <p class="font-bold">คำเตือน</p>
+          <p>API Key ที่ให้มา (`AIza...`) เป็นคีย์ตัวอย่างและอาจใช้งานไม่ได้จริง หากต้องการใช้งานอย่างยั่งยืน กรุณาใช้ API Key ที่ถูกต้องจาก Google AI Studio ของคุณเอง</p>
+        </div>
+
+        <!-- Input Form -->
+        <div class="space-y-4">
+            <div>
+                <label for="announcement-text" class="block text-sm font-medium text-gray-700 mb-1">ข้อความที่จะประกาศ:</label>
+                <textarea id="announcement-text" rows="4" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="เช่น ขอเชิญทุกท่าน..."></textarea>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">ตั้งเวลาประกาศ (24 ชั่วโมง):</label>
+                <div class="flex items-center space-x-2">
+                    <input type="number" id="schedule-hour" min="0" max="23" class="w-24 p-2 border border-gray-300 rounded-lg text-center" placeholder="ชั่วโมง">
+                    <span class="font-bold">:</span>
+                    <input type="number" id="schedule-minute" min="0" max="59" class="w-24 p-2 border border-gray-300 rounded-lg text-center" placeholder="นาที">
+                </div>
+            </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row gap-4">
+            <button id="schedule-button" class="w-full flex items-center justify-center bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition duration-300">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.414-1.414L11 9.586V6z" clip-rule="evenodd" /></svg>
+                <span>ตั้งเวลาประกาศ</span>
+            </button>
+            <button id="test-button" class="w-full sm:w-auto flex items-center justify-center bg-gray-200 text-gray-800 font-bold py-3 px-4 rounded-lg hover:bg-gray-300 transition duration-300">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path d="M10 3a1 1 0 011 1v1.135a.75.75 0 01-.165.488l-1.42 1.42a.75.75 0 01-1.06 0l-1.42-1.42a.75.75 0 01-.165-.488V4a1 1 0 011-1z" /><path fill-rule="evenodd" d="M5.5 10.5a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM10 14a3.5 3.5 0 100-7 3.5 3.5 0 000 7z" clip-rule="evenodd" /></svg>
+                <span>ทดสอบเสียง</span>
+                <div id="test-loader" class="loader ml-2 hidden"></div>
+            </button>
+        </div>
+
+        <!-- Status & Scheduled List -->
+        <div>
+            <h2 class="text-xl font-bold text-gray-800 border-b pb-2 mb-4">รายการประกาศที่ตั้งเวลาไว้</h2>
+            <div id="status-message" class="text-center text-gray-500 p-4"></div>
+            <div id="scheduled-list" class="space-y-3">
+                <!-- Scheduled announcements will be dynamically added here -->
+            </div>
+        </div>
+
+        <!-- Audio Player -->
+        <audio id="audio-player" class="hidden"></audio>
+    </div>
+
+    <script type="module">
+        // --- DOM Elements ---
+        const announcementText = document.getElementById('announcement-text');
+        const scheduleHour = document.getElementById('schedule-hour');
+        const scheduleMinute = document.getElementById('schedule-minute');
+        const scheduleButton = document.getElementById('schedule-button');
+        const testButton = document.getElementById('test-button');
+        const testLoader = document.getElementById('test-loader');
+        const statusMessage = document.getElementById('status-message');
+        const scheduledList = document.getElementById('scheduled-list');
+        const audioPlayer = document.getElementById('audio-player');
+        
+        // --- Gemini API Configuration ---
+        const API_KEY = "AIzaSyAo96vhXG-NckUw9fLBzMex6YmDhH3SOww";
+        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${API_KEY}`;
+
+        // --- State ---
+        let scheduledAnnouncements = [];
+        let announcementIdCounter = 0;
+
+        /**
+         * แปลงข้อมูลเสียง PCM ดิบ (ที่ได้จาก API) ให้เป็นไฟล์ WAV ที่สามารถเล่นได้
+         * @param {Int16Array} pcmData - ข้อมูลเสียง PCM แบบ 16-bit
+         * @param {number} sampleRate - อัตราสุ่มตัวอย่างเสียง (เช่น 24000)
+         * @returns {Blob} - อ็อบเจกต์ Blob ของไฟล์ WAV
+         */
+        function pcmToWav(pcmData, sampleRate) {
+            const numChannels = 1;
+            const bitsPerSample = 16;
+            const byteRate = sampleRate * numChannels * (bitsPerSample / 8);
+            const blockAlign = numChannels * (bitsPerSample / 8);
+            const dataSize = pcmData.length * (bitsPerSample / 8);
+            const fileSize = 36 + dataSize;
+
+            const buffer = new ArrayBuffer(44 + dataSize);
+            const view = new DataView(buffer);
+
+            // RIFF chunk descriptor
+            writeString(view, 0, 'RIFF');
+            view.setUint32(4, fileSize, true);
+            writeString(view, 8, 'WAVE');
+            // "fmt " sub-chunk
+            writeString(view, 12, 'fmt ');
+            view.setUint32(16, 16, true); // Subchunk1Size for PCM
+            view.setUint16(20, 1, true); // AudioFormat 1 for PCM
+            view.setUint16(22, numChannels, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, byteRate, true);
+            view.setUint16(32, blockAlign, true);
+            view.setUint16(34, bitsPerSample, true);
+            // "data" sub-chunk
+            writeString(view, 36, 'data');
+            view.setUint32(40, dataSize, true);
+
+            // Write PCM data
+            for (let i = 0; i < pcmData.length; i++) {
+                view.setInt16(44 + i * 2, pcmData[i], true);
+            }
+
+            return new Blob([view], { type: 'audio/wav' });
+        }
+
+        function writeString(view, offset, string) {
+            for (let i = 0; i < string.length; i++) {
+                view.setUint8(offset + i, string.charCodeAt(i));
+            }
+        }
+        
+        /**
+         * แปลงสตริง Base64 เป็น ArrayBuffer
+         */
+        function base64ToArrayBuffer(base64) {
+            const binaryString = window.atob(base64);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes.buffer;
+        }
+
+        /**
+         * เรียก Gemini API เพื่อสร้างเสียงจากข้อความและเล่นเสียงนั้น
+         * @param {string} text - ข้อความที่ต้องการแปลงเป็นเสียง
+         * @param {function} onComplete - Callback ที่จะทำงานเมื่อสร้างและเล่นเสียงเสร็จ
+         */
+        async function generateAndPlayAudio(text, onComplete = () => {}) {
+            if (!text.trim()) {
+                updateStatus("กรุณาป้อนข้อความก่อน", "error");
+                return;
+            }
+            
+            testButton.disabled = true;
+            testLoader.classList.remove('hidden');
+            updateStatus("กำลังสร้างไฟล์เสียงจาก AI...", "loading");
+
+            const payload = {
+                contents: [{ parts: [{ text: `พูดด้วยน้ำเสียงประกาศข่าว: ${text}` }] }],
+                generationConfig: {
+                    responseModalities: ["AUDIO"],
+                    speechConfig: {
+                        voiceConfig: {
+                            prebuiltVoiceConfig: { voiceName: "Charon" } // เลือกเสียงที่เหมาะสมกับการประกาศ
+                        }
+                    }
+                },
+                model: "gemini-2.5-flash-preview-tts"
+            };
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(`API Error: ${error.error.message}`);
+                }
+
+                const result = await response.json();
+                const part = result?.candidates?.[0]?.content?.parts?.[0];
+                const audioData = part?.inlineData?.data;
+                const mimeType = part?.inlineData?.mimeType;
+
+                if (audioData && mimeType && mimeType.startsWith("audio/")) {
+                    updateStatus("สร้างเสียงสำเร็จ กำลังเล่น...", "success");
+                    const sampleRateMatch = mimeType.match(/rate=(\d+)/);
+                    const sampleRate = sampleRateMatch ? parseInt(sampleRateMatch[1], 10) : 24000;
+                    
+                    const pcmDataBuffer = base64ToArrayBuffer(audioData);
+                    const pcm16 = new Int16Array(pcmDataBuffer);
+                    const wavBlob = pcmToWav(pcm16, sampleRate);
+                    const audioUrl = URL.createObjectURL(wavBlob);
+                    
+                    audioPlayer.src = audioUrl;
+                    audioPlayer.play();
+                    audioPlayer.onended = () => {
+                        updateStatus("เล่นเสียงจบแล้ว", "idle");
+                        onComplete();
+                    };
+                } else {
+                    throw new Error("ไม่ได้รับข้อมูลเสียงที่ถูกต้องจาก API");
+                }
+
+            } catch (error) {
+                console.error("Error generating audio:", error);
+                updateStatus(`เกิดข้อผิดพลาด: ${error.message}`, "error");
+                onComplete();
+            } finally {
+                testButton.disabled = false;
+                testLoader.classList.add('hidden');
+            }
+        }
+
+        /**
+         * อัปเดตข้อความสถานะและรายการประกาศที่ตั้งเวลาไว้
+         */
+        function updateUI() {
+            scheduledList.innerHTML = ''; // เคลียร์รายการเก่า
+            if (scheduledAnnouncements.length === 0) {
+                statusMessage.textContent = 'ยังไม่มีรายการประกาศที่ตั้งเวลาไว้';
+                statusMessage.classList.remove('hidden');
+            } else {
+                statusMessage.classList.add('hidden');
+                // เรียงลำดับตามเวลา
+                const sortedAnnouncements = [...scheduledAnnouncements].sort((a, b) => {
+                    if (a.hour !== b.hour) return a.hour - b.hour;
+                    return a.minute - b.minute;
+                });
+
+                sortedAnnouncements.forEach(ann => {
+                    const div = document.createElement('div');
+                    div.id = `ann-${ann.id}`;
+                    div.className = `p-4 rounded-lg flex justify-between items-center transition-all ${ann.played ? 'bg-gray-100 text-gray-400' : 'bg-blue-50 border border-blue-200'}`;
+                    
+                    const timeStr = `${String(ann.hour).padStart(2, '0')}:${String(ann.minute).padStart(2, '0')}`;
+                    div.innerHTML = `
+                        <div>
+                            <p class="font-bold text-lg ${ann.played ? '' : 'text-blue-800'}">${timeStr}</p>
+                            <p class="text-sm ${ann.played ? '' : 'text-blue-600'}">${ann.text.substring(0, 50)}${ann.text.length > 50 ? '...' : ''}</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                           ${ann.played ? '<span class="text-xs font-semibold bg-green-200 text-green-800 px-2 py-1 rounded-full">ประกาศแล้ว</span>' : ''}
+                           <button data-id="${ann.id}" class="remove-btn text-red-500 hover:text-red-700 p-1 rounded-full">
+                               <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                           </button>
+                        </div>
+                    `;
+                    scheduledList.appendChild(div);
+                });
+            }
+        }
+
+        /**
+         * อัปเดตข้อความสถานะชั่วคราว
+         * @param {string} message - ข้อความที่ต้องการแสดง
+         * @param {'loading'|'success'|'error'|'idle'} type - ประเภทของข้อความ
+         */
+        function updateStatus(message, type) {
+            const tempStatus = document.createElement('div');
+            tempStatus.textContent = message;
+            let bgColor;
+            switch(type) {
+                case 'success': bgColor = 'bg-green-100 text-green-800'; break;
+                case 'error': bgColor = 'bg-red-100 text-red-800'; break;
+                case 'loading': bgColor = 'bg-blue-100 text-blue-800'; break;
+                default: bgColor = 'bg-gray-100 text-gray-800';
+            }
+            tempStatus.className = `p-3 rounded-lg text-center mb-4 transition-opacity duration-500 ${bgColor}`;
+            document.querySelector('.w-full.max-w-2xl').prepend(tempStatus);
+            setTimeout(() => {
+                tempStatus.classList.add('opacity-0');
+                setTimeout(() => tempStatus.remove(), 500);
+            }, 3000);
+        }
+
+        /**
+         * จัดการการคลิกปุ่มตั้งเวลา
+         */
+        function handleScheduleClick() {
+            const text = announcementText.value;
+            const hour = parseInt(scheduleHour.value, 10);
+            const minute = parseInt(scheduleMinute.value, 10);
+
+            if (!text.trim()) {
+                updateStatus("กรุณาป้อนข้อความที่จะประกาศ", "error");
+                return;
+            }
+            if (isNaN(hour) || isNaN(minute) || hour < 0 || hour > 23 || minute < 0 || minute > 59) {
+                updateStatus("กรุณาตั้งเวลาให้ถูกต้อง", "error");
+                return;
+            }
+
+            announcementIdCounter++;
+            scheduledAnnouncements.push({
+                id: announcementIdCounter,
+                text: text,
+                hour: hour,
+                minute: minute,
+                played: false
+            });
+
+            updateStatus("ตั้งเวลาประกาศสำเร็จ!", "success");
+            updateUI();
+            
+            // เคลียร์ฟอร์ม
+            announcementText.value = '';
+            scheduleHour.value = '';
+            scheduleMinute.value = '';
+        }
+        
+        /**
+         * ตรวจสอบตารางเวลาทุกๆ วินาที เพื่อดูว่าถึงเวลาประกาศหรือยัง
+         */
+        function checkSchedule() {
+            const now = new Date();
+            const currentHour = now.getHours();
+            const currentMinute = now.getMinutes();
+            
+            scheduledAnnouncements.forEach(ann => {
+                if (!ann.played && ann.hour === currentHour && ann.minute === currentMinute) {
+                    console.log(`Time to announce: ${ann.text}`);
+                    ann.played = true;
+                    const annElement = document.getElementById(`ann-${ann.id}`);
+                    if(annElement) {
+                       annElement.classList.add('animate-pulse');
+                    }
+                    generateAndPlayAudio(ann.text, () => {
+                         if(annElement) {
+                           annElement.classList.remove('animate-pulse');
+                         }
+                         updateUI();
+                    });
+                }
+            });
+        }
+        
+        // --- Event Listeners ---
+        scheduleButton.addEventListener('click', handleScheduleClick);
+        
+        testButton.addEventListener('click', () => {
+            generateAndPlayAudio(announcementText.value);
+        });
+
+        scheduledList.addEventListener('click', (e) => {
+            const removeBtn = e.target.closest('.remove-btn');
+            if (removeBtn) {
+                const idToRemove = parseInt(removeBtn.dataset.id, 10);
+                scheduledAnnouncements = scheduledAnnouncements.filter(ann => ann.id !== idToRemove);
+                updateUI();
+                updateStatus("ลบรายการสำเร็จ", "idle");
+            }
+        });
+
+        // --- Initialization ---
+        setInterval(checkSchedule, 1000); // ตรวจสอบทุก 1 วินาที
+        updateUI(); // แสดงผลครั้งแรก
+    </script>
+</body>
+</html>
