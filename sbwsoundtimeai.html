@@ -25,7 +25,7 @@
         }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen">
+<body class="flex items-center justify-center min-h-screen py-8">
 
     <div class="w-full max-w-2xl bg-white rounded-xl shadow-lg p-8 space-y-6">
         <!-- Header -->
@@ -52,12 +52,18 @@
                 <select id="voice-select" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition bg-white"></select>
             </div>
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">ตั้งเวลาประกาศ (24 ชั่วโมง):</label>
-                <div class="flex items-center space-x-2">
-                    <input type="number" id="schedule-hour" min="0" max="23" class="w-24 p-2 border border-gray-300 rounded-lg text-center" placeholder="ชั่วโมง">
-                    <span class="font-bold">:</span>
-                    <input type="number" id="schedule-minute" min="0" max="59" class="w-24 p-2 border border-gray-300 rounded-lg text-center" placeholder="นาที">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">ตั้งเวลาประกาศ (24 ชั่วโมง):</label>
+                    <div class="flex items-center space-x-2">
+                        <input type="number" id="schedule-hour" min="0" max="23" class="w-full p-2 border border-gray-300 rounded-lg text-center" placeholder="ชั่วโมง">
+                        <span class="font-bold">:</span>
+                        <input type="number" id="schedule-minute" min="0" max="59" class="w-full p-2 border border-gray-300 rounded-lg text-center" placeholder="นาที">
+                    </div>
+                </div>
+                <div>
+                    <label for="start-delay" class="block text-sm font-medium text-gray-700 mb-1">หน่วงเวลาก่อนเริ่ม (วินาที):</label>
+                    <input type="number" id="start-delay" min="0" max="60" value="2" class="w-full p-2 border border-gray-300 rounded-lg text-center">
                 </div>
             </div>
         </div>
@@ -65,7 +71,7 @@
         <!-- Action Buttons -->
         <div class="flex flex-col sm:flex-row gap-4">
             <button id="schedule-button" class="w-full flex items-center justify-center bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition duration-300">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.414-1.414L11 9.586V6z" clip-rule="evenodd" /></svg>
+                <svg xmlns="http://www.w.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.414-1.414L11 9.586V6z" clip-rule="evenodd" /></svg>
                 <span>ตั้งเวลาประกาศ</span>
             </button>
             <button id="test-button" class="w-full sm:w-auto flex items-center justify-center bg-gray-200 text-gray-800 font-bold py-3 px-4 rounded-lg hover:bg-gray-300 transition duration-300">
@@ -86,6 +92,11 @@
 
         <!-- Audio Player -->
         <audio id="audio-player" class="hidden"></audio>
+
+        <!-- Footer -->
+        <footer class="text-center text-xs text-gray-400 pt-6 border-t mt-4">
+            <p>งานสื่อ นวัตกรรมและเทคโนโลยี ฝ่ายบริหารงานวิชาการ โรงเรียนสระบุรีวิทยาคม</p>
+        </footer>
     </div>
 
     <script type="module">
@@ -94,6 +105,7 @@
         const voiceSelect = document.getElementById('voice-select');
         const scheduleHour = document.getElementById('schedule-hour');
         const scheduleMinute = document.getElementById('schedule-minute');
+        const startDelay = document.getElementById('start-delay');
         const scheduleButton = document.getElementById('schedule-button');
         const testButton = document.getElementById('test-button');
         const testLoader = document.getElementById('test-loader');
@@ -145,9 +157,6 @@
 
         /**
          * แปลงข้อมูลเสียง PCM ดิบ (ที่ได้จาก API) ให้เป็นไฟล์ WAV ที่สามารถเล่นได้
-         * @param {Int16Array} pcmData - ข้อมูลเสียง PCM แบบ 16-bit
-         * @param {number} sampleRate - อัตราสุ่มตัวอย่างเสียง (เช่น 24000)
-         * @returns {Blob} - อ็อบเจกต์ Blob ของไฟล์ WAV
          */
         function pcmToWav(pcmData, sampleRate) {
             const numChannels = 1;
@@ -156,32 +165,24 @@
             const blockAlign = numChannels * (bitsPerSample / 8);
             const dataSize = pcmData.length * (bitsPerSample / 8);
             const fileSize = 36 + dataSize;
-
             const buffer = new ArrayBuffer(44 + dataSize);
             const view = new DataView(buffer);
-
-            // RIFF chunk descriptor
             writeString(view, 0, 'RIFF');
             view.setUint32(4, fileSize, true);
             writeString(view, 8, 'WAVE');
-            // "fmt " sub-chunk
             writeString(view, 12, 'fmt ');
-            view.setUint32(16, 16, true); // Subchunk1Size for PCM
-            view.setUint16(20, 1, true); // AudioFormat 1 for PCM
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);
             view.setUint16(22, numChannels, true);
             view.setUint32(24, sampleRate, true);
             view.setUint32(28, byteRate, true);
             view.setUint16(32, blockAlign, true);
             view.setUint16(34, bitsPerSample, true);
-            // "data" sub-chunk
             writeString(view, 36, 'data');
             view.setUint32(40, dataSize, true);
-
-            // Write PCM data
             for (let i = 0; i < pcmData.length; i++) {
                 view.setInt16(44 + i * 2, pcmData[i], true);
             }
-
             return new Blob([view], { type: 'audio/wav' });
         }
 
@@ -206,12 +207,11 @@
 
         /**
          * เรียก Gemini API เพื่อสร้างเสียงจากข้อความและเล่นเสียงนั้น
-         * @param {string} text - ข้อความที่ต้องการแปลงเป็นเสียง
-         * @param {function} onComplete - Callback ที่จะทำงานเมื่อสร้างและเล่นเสียงเสร็จ
          */
-        async function generateAndPlayAudio(text, onComplete = () => {}) {
+        async function generateAndPlayAudio(text, voice, delay, onComplete = () => {}) {
             if (!text.trim()) {
                 updateStatus("กรุณาป้อนข้อความก่อน", "error");
+                onComplete();
                 return;
             }
             
@@ -219,15 +219,13 @@
             testLoader.classList.remove('hidden');
             updateStatus("กำลังสร้างไฟล์เสียงจาก AI...", "loading");
 
-            const selectedVoice = voiceSelect.value;
-
             const payload = {
                 contents: [{ parts: [{ text: `พูดด้วยน้ำเสียงประกาศข่าว: ${text}` }] }],
                 generationConfig: {
                     responseModalities: ["AUDIO"],
                     speechConfig: {
                         voiceConfig: {
-                            prebuiltVoiceConfig: { voiceName: selectedVoice } 
+                            prebuiltVoiceConfig: { voiceName: voice } 
                         }
                     }
                 },
@@ -262,7 +260,10 @@
                     const audioUrl = URL.createObjectURL(wavBlob);
                     
                     audioPlayer.src = audioUrl;
-                    audioPlayer.play();
+                    setTimeout(() => {
+                        audioPlayer.play();
+                    }, delay * 1000); // Apply delay before playing
+
                     audioPlayer.onended = () => {
                         updateStatus("เล่นเสียงจบแล้ว", "idle");
                         onComplete();
@@ -282,16 +283,15 @@
         }
 
         /**
-         * อัปเดตข้อความสถานะและรายการประกาศที่ตั้งเวลาไว้
+         * อัปเดต UI แสดงรายการประกาศ
          */
         function updateUI() {
-            scheduledList.innerHTML = ''; // เคลียร์รายการเก่า
+            scheduledList.innerHTML = '';
             if (scheduledAnnouncements.length === 0) {
                 statusMessage.textContent = 'ยังไม่มีรายการประกาศที่ตั้งเวลาไว้';
                 statusMessage.classList.remove('hidden');
             } else {
                 statusMessage.classList.add('hidden');
-                // เรียงลำดับตามเวลา
                 const sortedAnnouncements = [...scheduledAnnouncements].sort((a, b) => {
                     if (a.hour !== b.hour) return a.hour - b.hour;
                     return a.minute - b.minute;
@@ -301,12 +301,15 @@
                     const div = document.createElement('div');
                     div.id = `ann-${ann.id}`;
                     div.className = `p-4 rounded-lg flex justify-between items-center transition-all ${ann.played ? 'bg-gray-100 text-gray-400' : 'bg-blue-50 border border-blue-200'}`;
-                    
                     const timeStr = `${String(ann.hour).padStart(2, '0')}:${String(ann.minute).padStart(2, '0')}`;
                     div.innerHTML = `
-                        <div>
-                            <p class="font-bold text-lg ${ann.played ? '' : 'text-blue-800'}">${timeStr}</p>
-                            <p class="text-sm ${ann.played ? '' : 'text-blue-600'}">${ann.text.substring(0, 50)}${ann.text.length > 50 ? '...' : ''}</p>
+                        <div class="flex-grow">
+                             <div class="flex items-center space-x-3 flex-wrap">
+                                <p class="font-bold text-lg ${ann.played ? '' : 'text-blue-800'}">${timeStr}</p>
+                                <span class="text-xs font-semibold bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full">${ann.voice}</span>
+                                <span class="text-xs text-gray-500">${ann.delay} วินาทีหน่วง</span>
+                            </div>
+                            <p class="text-sm mt-1 ${ann.played ? '' : 'text-blue-600'}">${ann.text.substring(0, 50)}${ann.text.length > 50 ? '...' : ''}</p>
                         </div>
                         <div class="flex items-center space-x-2">
                            ${ann.played ? '<span class="text-xs font-semibold bg-green-200 text-green-800 px-2 py-1 rounded-full">ประกาศแล้ว</span>' : ''}
@@ -321,9 +324,7 @@
         }
 
         /**
-         * อัปเดตข้อความสถานะชั่วคราว
-         * @param {string} message - ข้อความที่ต้องการแสดง
-         * @param {'loading'|'success'|'error'|'idle'} type - ประเภทของข้อความ
+         * แสดงข้อความสถานะชั่วคราว
          */
         function updateStatus(message, type) {
             const tempStatus = document.createElement('div');
@@ -350,6 +351,8 @@
             const text = announcementText.value;
             const hour = parseInt(scheduleHour.value, 10);
             const minute = parseInt(scheduleMinute.value, 10);
+            const voice = voiceSelect.value;
+            const delay = parseInt(startDelay.value, 10) || 0;
 
             if (!text.trim()) {
                 updateStatus("กรุณาป้อนข้อความที่จะประกาศ", "error");
@@ -366,20 +369,21 @@
                 text: text,
                 hour: hour,
                 minute: minute,
-                played: false
+                played: false,
+                voice: voice,
+                delay: delay
             });
 
             updateStatus("ตั้งเวลาประกาศสำเร็จ!", "success");
             updateUI();
             
-            // เคลียร์ฟอร์ม
             announcementText.value = '';
             scheduleHour.value = '';
             scheduleMinute.value = '';
         }
         
         /**
-         * ตรวจสอบตารางเวลาทุกๆ วินาที เพื่อดูว่าถึงเวลาประกาศหรือยัง
+         * ตรวจสอบตารางเวลาทุกวินาที
          */
         function checkSchedule() {
             const now = new Date();
@@ -394,7 +398,7 @@
                     if(annElement) {
                        annElement.classList.add('animate-pulse');
                     }
-                    generateAndPlayAudio(ann.text, () => {
+                    generateAndPlayAudio(ann.text, ann.voice, ann.delay, () => {
                          if(annElement) {
                            annElement.classList.remove('animate-pulse');
                          }
@@ -408,7 +412,10 @@
         scheduleButton.addEventListener('click', handleScheduleClick);
         
         testButton.addEventListener('click', () => {
-            generateAndPlayAudio(announcementText.value);
+            const text = announcementText.value;
+            const voice = voiceSelect.value;
+            const delay = parseInt(startDelay.value, 10) || 0;
+            generateAndPlayAudio(text, voice, delay);
         });
 
         scheduledList.addEventListener('click', (e) => {
@@ -422,9 +429,6 @@
         });
 
         // --- Initialization ---
-        /**
-         * Populates the voice selection dropdown.
-         */
         function populateVoices() {
             VOICES.forEach(voice => {
                 const option = document.createElement('option');
@@ -434,9 +438,9 @@
             });
         }
         
-        populateVoices(); // Call on startup
-        setInterval(checkSchedule, 1000); // ตรวจสอบทุก 1 วินาที
-        updateUI(); // แสดงผลครั้งแรก
+        populateVoices();
+        setInterval(checkSchedule, 1000);
+        updateUI();
     </script>
 </body>
 </html>
