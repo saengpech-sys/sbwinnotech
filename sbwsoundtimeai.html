@@ -48,6 +48,11 @@
             </div>
 
             <div>
+                <label for="voice-select" class="block text-sm font-medium text-gray-700 mb-1">เลือกเสียงพูด:</label>
+                <select id="voice-select" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition bg-white"></select>
+            </div>
+
+            <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">ตั้งเวลาประกาศ (24 ชั่วโมง):</label>
                 <div class="flex items-center space-x-2">
                     <input type="number" id="schedule-hour" min="0" max="23" class="w-24 p-2 border border-gray-300 rounded-lg text-center" placeholder="ชั่วโมง">
@@ -86,6 +91,7 @@
     <script type="module">
         // --- DOM Elements ---
         const announcementText = document.getElementById('announcement-text');
+        const voiceSelect = document.getElementById('voice-select');
         const scheduleHour = document.getElementById('schedule-hour');
         const scheduleMinute = document.getElementById('schedule-minute');
         const scheduleButton = document.getElementById('schedule-button');
@@ -98,6 +104,40 @@
         // --- Gemini API Configuration ---
         const API_KEY = "AIzaSyAo96vhXG-NckUw9fLBzMex6YmDhH3SOww";
         const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${API_KEY}`;
+        
+        // --- Voice Configuration ---
+        const VOICES = [
+            { name: "Charon", description: "สาระ, ชัดเจน (ค่าเริ่มต้น)" },
+            { name: "Kore", description: "หนักแน่น" },
+            { name: "Puck", description: "สดใส, ร่าเริง" },
+            { name: "Zephyr", description: "สว่าง, สดใส" },
+            { name: "Fenrir", description: "ตื่นเต้นง่าย" },
+            { name: "Leda", description: "อ่อนเยาว์" },
+            { name: "Orus", description: "หนักแน่น" },
+            { name: "Aoede", description: "โปร่งสบาย" },
+            { name: "Callirrhoe", description: "สบายๆ" },
+            { name: "Autonoe", description: "สว่าง, สดใส" },
+            { name: "Enceladus", description: "เสียงลม" },
+            { name: "Iapetus", description: "ชัดเจน" },
+            { name: "Umbriel", description: "สบายๆ" },
+            { name: "Algieba", description: "นุ่มนวล" },
+            { name: "Despina", description: "นุ่มนวล" },
+            { name: "Erinome", description: "ชัดเจน" },
+            { name: "Algenib", description: "แหบ" },
+            { name: "Rasalgethi", description: "สาระ" },
+            { name: "Laomedeia", description: "สดใส, ร่าเริง" },
+            { name: "Achernar", description: "นุ่ม" },
+            { name: "Alnilam", description: "หนักแน่น" },
+            { name: "Schedar", description: "สม่ำเสมอ" },
+            { name: "Gacrux", description: "ผู้ใหญ่" },
+            { name: "Pulcherrima", description: "มุ่งมั่น" },
+            { name: "Achird", description: "เป็นมิตร" },
+            { name: "Zubenelgenubi", description: "สบายๆ" },
+            { name: "Vindemiatrix", description: "อ่อนโยน" },
+            { name: "Sadachbia", description: "มีชีวิตชีวา" },
+            { name: "Sadaltager", description: "มีความรู้" },
+            { name: "Sulafat", description: "อบอุ่น" },
+        ];
 
         // --- State ---
         let scheduledAnnouncements = [];
@@ -179,13 +219,15 @@
             testLoader.classList.remove('hidden');
             updateStatus("กำลังสร้างไฟล์เสียงจาก AI...", "loading");
 
+            const selectedVoice = voiceSelect.value;
+
             const payload = {
                 contents: [{ parts: [{ text: `พูดด้วยน้ำเสียงประกาศข่าว: ${text}` }] }],
                 generationConfig: {
                     responseModalities: ["AUDIO"],
                     speechConfig: {
                         voiceConfig: {
-                            prebuiltVoiceConfig: { voiceName: "Charon" } // เลือกเสียงที่เหมาะสมกับการประกาศ
+                            prebuiltVoiceConfig: { voiceName: selectedVoice } 
                         }
                     }
                 },
@@ -380,8 +422,22 @@
         });
 
         // --- Initialization ---
+        /**
+         * Populates the voice selection dropdown.
+         */
+        function populateVoices() {
+            VOICES.forEach(voice => {
+                const option = document.createElement('option');
+                option.value = voice.name;
+                option.textContent = `${voice.name} - ${voice.description}`;
+                voiceSelect.appendChild(option);
+            });
+        }
+        
+        populateVoices(); // Call on startup
         setInterval(checkSchedule, 1000); // ตรวจสอบทุก 1 วินาที
         updateUI(); // แสดงผลครั้งแรก
     </script>
 </body>
 </html>
+
