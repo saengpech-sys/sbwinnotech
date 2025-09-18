@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบประกาศเสียงตามสาย</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap">
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+        }
+        .blinking {
+            animation: blinker 1.5s linear infinite;
+        }
+        @keyframes blinker {
+            50% {
+                opacity: 0.3;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-blue-600">ระบบประกาศเสียงตามสายอัตโนมัติ</h1>
+            <p class="text-gray-600 mt-2">ตั้งเวลาเล่นไฟล์เสียงประกาศของคุณล่วงหน้า</p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Left Column: Clock and Player -->
+            <div class="md:col-span-1 space-y-6">
+                <div class="bg-white p-6 rounded-xl shadow-md text-center">
+                    <h2 class="text-xl font-bold mb-2">เวลาปัจจุบัน</h2>
+                    <div id="clock" class="text-5xl font-bold text-gray-700 bg-gray-200 rounded-lg py-4">00:00:00</div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <h2 class="text-xl font-bold mb-3 text-center">กำลังเล่น</h2>
+                    <div id="now-playing" class="text-center text-gray-500 italic">-- ยังไม่มีเสียงที่กำลังเล่น --</div>
+                    <audio id="audio-player" controls class="w-full mt-4"></audio>
+                </div>
+            </div>
+
+            <!-- Middle Column: Add Schedule -->
+            <div class="md:col-span-1">
+                 <div class="bg-white p-6 rounded-xl shadow-md">
+                    <h2 class="text-2xl font-bold mb-4 text-center">เพิ่มรายการใหม่</h2>
+                    <form id="schedule-form" class="space-y-4">
+                        <div>
+                            <label for="time" class="block font-semibold mb-1">เวลาที่ต้องการประกาศ (HH:MM)</label>
+                            <input type="time" id="time" required class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label for="name" class="block font-semibold mb-1">ชื่อรายการประกาศ</label>
+                            <input type="text" id="name" placeholder="เช่น เพลงชาติ, ประกาศพักเที่ยง" required class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label for="audio-file" class="block font-semibold mb-1">เลือกไฟล์เสียง (MP3, WAV)</label>
+                            <input type="file" id="audio-file" accept="audio/mp3, audio/wav" required class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                        </div>
+                        <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-300">
+                            เพิ่มเข้ารายการ
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Right Column: Schedule List -->
+            <div class="md:col-span-1">
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <h2 class="text-2xl font-bold mb-4 text-center">ตารางการประกาศ</h2>
+                    <div id="schedule-list" class="space-y-3 h-96 overflow-y-auto pr-2">
+                        <p class="text-center text-gray-400 mt-16">ยังไม่มีรายการในตาราง</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const clockElement = document.getElementById('clock');
+            const scheduleForm = document.getElementById('schedule-form');
+            const scheduleListElement = document.getElementById('schedule-list');
+            const audioPlayer = document.getElementById('audio-player');
+            const nowPlayingElement = document.getElementById('now-playing');
+
+            let schedule = [];
+            let currentPlayingId = null;
+
+            // --- Clock Functionality ---
+            function updateClock() {
+                const now = new Date();
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+                clockElement.textContent = `${hours}:${minutes}:${seconds}`;
+            }
+
+            // --- Schedule Management ---
+            function renderSchedule() {
+                scheduleListElement.innerHTML = '';
+                if (schedule.length === 0) {
+                    scheduleListElement.innerHTML = '<p class="text-center text-gray-400 mt-16">ยังไม่มีรายการในตาราง</p>';
+                    return;
+                }
+
+                // Sort schedule by time
+                schedule.sort((a, b) => a.time.localeCompare(b.time));
+
+                schedule.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = `p-3 rounded-lg border flex items-center justify-between transition-all duration-300 ${getStatusStyle(item.status)}`;
+                    div.innerHTML = `
+                        <div>
+                            <p class="font-bold">${item.time} - ${item.name}</p>
+                            <p class="text-sm">${getStatusText(item.status)}</p>
+                        </div>
+                        <button data-id="${item.id}" class="remove-btn text-red-500 hover:text-red-700 font-bold text-xl">&times;</button>
+                    `;
+                    scheduleListElement.appendChild(div);
+                });
+            }
+
+            function getStatusStyle(status) {
+                switch (status) {
+                    case 'playing':
+                        return 'bg-green-100 border-green-400 blinking';
+                    case 'finished':
+                        return 'bg-gray-200 border-gray-300 opacity-60';
+                    case 'waiting':
+                    default:
+                        return 'bg-blue-50 border-blue-200';
+                }
+            }
+
+            function getStatusText(status) {
+                switch (status) {
+                    case 'playing':
+                        return 'กำลังเล่น';
+                    case 'finished':
+                        return 'เล่นจบแล้ว';
+                    case 'waiting':
+                    default:
+                        return 'รอคิว';
+                }
+            }
+            
+            scheduleForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const time = document.getElementById('time').value;
+                const name = document.getElementById('name').value;
+                const file = document.getElementById('audio-file').files[0];
+
+                if (time && name && file) {
+                    const fileURL = URL.createObjectURL(file);
+                    const newAnnouncement = {
+                        id: Date.now(),
+                        time: time,
+                        name: name,
+                        fileURL: fileURL,
+                        status: 'waiting' // waiting, playing, finished
+                    };
+                    schedule.push(newAnnouncement);
+                    renderSchedule();
+                    scheduleForm.reset();
+                }
+            });
+            
+            scheduleListElement.addEventListener('click', (e) => {
+                if(e.target.classList.contains('remove-btn')){
+                    const idToRemove = parseInt(e.target.getAttribute('data-id'));
+                    schedule = schedule.filter(item => item.id !== idToRemove);
+                    renderSchedule();
+                }
+            });
+
+            // --- Playback Logic ---
+            function checkSchedule() {
+                const now = new Date();
+                const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+                
+                // Don't start a new track if one is already playing
+                if (audioPlayer.duration > 0 && !audioPlayer.paused) {
+                    return;
+                }
+
+                const itemToPlay = schedule.find(item => item.time === currentTime && item.status === 'waiting');
+
+                if (itemToPlay) {
+                    playAnnouncement(itemToPlay);
+                }
+            }
+
+            function playAnnouncement(item) {
+                item.status = 'playing';
+                currentPlayingId = item.id;
+                
+                audioPlayer.src = item.fileURL;
+                audioPlayer.play();
+                
+                nowPlayingElement.textContent = `${item.time} - ${item.name}`;
+                nowPlayingElement.classList.remove('italic', 'text-gray-500');
+                nowPlayingElement.classList.add('font-bold', 'text-green-600');
+                
+                renderSchedule();
+            }
+
+            audioPlayer.addEventListener('ended', () => {
+                if (currentPlayingId !== null) {
+                    const finishedItem = schedule.find(item => item.id === currentPlayingId);
+                    if (finishedItem) {
+                        finishedItem.status = 'finished';
+                    }
+                    currentPlayingId = null;
+                    
+                    nowPlayingElement.textContent = '-- ยังไม่มีเสียงที่กำลังเล่น --';
+                    nowPlayingElement.classList.add('italic', 'text-gray-500');
+                    nowPlayingElement.classList.remove('font-bold', 'text-green-600');
+
+                    renderSchedule();
+                }
+            });
+
+            // --- Initializations ---
+            setInterval(updateClock, 1000);
+            setInterval(checkSchedule, 1000); // Check every second for more precision
+            updateClock();
+            renderSchedule();
+        });
+    </script>
+</body>
+</html>
