@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สัตตาภิธรรม สุวรรณโคมคำ - พยากรณ์ชะตาชีวิต</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&family=Noto+Serif+Thai:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #fdfbf7;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d4af37' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        h1, h2, h3, .thai-serif {
+            font-family: 'Noto Serif Thai', serif;
+        }
+        .golden-gradient {
+            background: linear-gradient(135deg, #b8860b 0%, #ffd700 50%, #b8860b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .gold-border {
+            border: 2px solid #d4af37;
+        }
+        .bg-gold-100 {
+            background-color: #fcf8e3;
+        }
+        .table-cell-custom {
+            text-align: center;
+            padding: 8px;
+            border: 1px solid #e5e7eb;
+        }
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-red-900 text-white shadow-lg py-6 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/thai-pattern.png')]"></div>
+        <div class="container mx-auto px-4 text-center relative z-10">
+            <h1 class="text-3xl md:text-4xl font-bold mb-2 text-yellow-400 drop-shadow-md">สัตตาภิธรรม สุวรรณโคมคำ</h1>
+            <p class="text-sm md:text-base text-yellow-100 opacity-90">คัมภีร์มหาจักรพรรดิราช พยากรณ์ตามกฎแห่งกรรม</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-8 max-w-4xl">
+        
+        <!-- Input Form -->
+        <div class="bg-white rounded-lg p-6 mb-8 card-shadow border-t-4 border-yellow-500">
+            <h2 class="text-xl font-bold mb-4 text-red-800 border-b pb-2">ข้อมูลชาตา (วันเดือนปีเกิด)</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">วันเกิด (สากล)</label>
+                    <input type="date" id="birthDate" class="w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring focus:ring-yellow-200 p-2 border">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">เวลาเกิด (โดยประมาณ)</label>
+                    <input type="time" id="birthTime" class="w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring focus:ring-yellow-200 p-2 border" value="06:00">
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">ปีพุทธศักราช (พ.ศ.) เกิด</label>
+                    <input type="number" id="beYear" placeholder="เช่น 2530" class="w-full rounded-md border-gray-300 shadow-sm focus:border-yellow-500 focus:ring focus:ring-yellow-200 p-2 border">
+                    <p class="text-xs text-gray-500 mt-1">* กรุณากรอก พ.ศ. ให้ถูกต้องเพื่อคำนวณเศษศักราช</p>
+                </div>
+            </div>
+            <button onclick="calculateSatta()" class="mt-6 w-full bg-red-800 hover:bg-red-900 text-yellow-100 font-bold py-3 px-4 rounded-md transition duration-300 shadow-md">
+                ผูกดวงสัตตาภิธรรม
+            </button>
+        </div>
+
+        <!-- Result Section (Hidden by default) -->
+        <div id="resultSection" class="hidden">
+            
+            <!-- Summary Header -->
+            <div class="bg-white rounded-lg p-6 mb-6 card-shadow text-center">
+                <h2 class="text-2xl font-bold text-red-900 mb-2">ดวงชะตากำเนิด</h2>
+                <div class="flex flex-wrap justify-center gap-4 text-sm text-gray-600" id="birthDetails">
+                    <!-- Details will be injected here -->
+                </div>
+            </div>
+
+            <!-- The Grid (7 Bases Chart) -->
+            <div class="bg-white rounded-lg p-4 md:p-6 mb-6 card-shadow overflow-x-auto">
+                <h3 class="text-lg font-bold text-gray-800 mb-4 border-l-4 border-yellow-500 pl-2">ผังเลข ๗ ตัว (สัตตาภิธรรม)</h3>
+                <div class="min-w-[600px]">
+                    <div class="grid grid-cols-8 gap-0 border border-gray-300 text-center text-sm md:text-base">
+                        <!-- Headers -->
+                        <div class="bg-red-50 p-2 font-bold border border-gray-200">ฐาน</div>
+                        <div class="bg-yellow-100 p-2 font-bold border border-gray-200" title="อัตตะ">1. อัตตะ</div>
+                        <div class="bg-yellow-100 p-2 font-bold border border-gray-200" title="หินะ">2. หินะ</div>
+                        <div class="bg-yellow-100 p-2 font-bold border border-gray-200" title="ธนัง">3. ธนัง</div>
+                        <div class="bg-yellow-100 p-2 font-bold border border-gray-200" title="ปิตา">4. ปิตา</div>
+                        <div class="bg-yellow-100 p-2 font-bold border border-gray-200" title="มาตา">5. มาตา</div>
+                        <div class="bg-yellow-100 p-2 font-bold border border-gray-200" title="โภคา">6. โภคา</div>
+                        <div class="bg-yellow-100 p-2 font-bold border border-gray-200" title="มัชฌิมา">7. มัชฌิมา</div>
+
+                        <!-- Row 1: Day -->
+                        <div class="bg-gray-50 p-2 font-bold border border-gray-200">วัน (วาร)</div>
+                        <div id="r1c1" class="p-3 border border-gray-200"></div>
+                        <div id="r1c2" class="p-3 border border-gray-200"></div>
+                        <div id="r1c3" class="p-3 border border-gray-200"></div>
+                        <div id="r1c4" class="p-3 border border-gray-200"></div>
+                        <div id="r1c5" class="p-3 border border-gray-200"></div>
+                        <div id="r1c6" class="p-3 border border-gray-200"></div>
+                        <div id="r1c7" class="p-3 border border-gray-200"></div>
+
+                        <!-- Row 2: Month -->
+                        <div class="bg-gray-50 p-2 font-bold border border-gray-200">เดือน (มาส)</div>
+                        <div id="r2c1" class="p-3 border border-gray-200"></div>
+                        <div id="r2c2" class="p-3 border border-gray-200"></div>
+                        <div id="r2c3" class="p-3 border border-gray-200"></div>
+                        <div id="r2c4" class="p-3 border border-gray-200"></div>
+                        <div id="r2c5" class="p-3 border border-gray-200"></div>
+                        <div id="r2c6" class="p-3 border border-gray-200"></div>
+                        <div id="r2c7" class="p-3 border border-gray-200"></div>
+
+                        <!-- Row 3: Year -->
+                        <div class="bg-gray-50 p-2 font-bold border border-gray-200">ปี (ศักราช)</div>
+                        <div id="r3c1" class="p-3 border border-gray-200"></div>
+                        <div id="r3c2" class="p-3 border border-gray-200"></div>
+                        <div id="r3c3" class="p-3 border border-gray-200"></div>
+                        <div id="r3c4" class="p-3 border border-gray-200"></div>
+                        <div id="r3c5" class="p-3 border border-gray-200"></div>
+                        <div id="r3c6" class="p-3 border border-gray-200"></div>
+                        <div id="r3c7" class="p-3 border border-gray-200"></div>
+
+                        <!-- Row 4: Sum (Base 4) -->
+                        <div class="bg-red-50 p-2 font-bold border border-gray-200 text-red-900">ฐานที่ 4</div>
+                        <div id="r4c1" class="p-3 border border-gray-200 font-bold text-red-800 bg-red-50"></div>
+                        <div id="r4c2" class="p-3 border border-gray-200 font-bold text-red-800 bg-red-50"></div>
+                        <div id="r4c3" class="p-3 border border-gray-200 font-bold text-red-800 bg-red-50"></div>
+                        <div id="r4c4" class="p-3 border border-gray-200 font-bold text-red-800 bg-red-50"></div>
+                        <div id="r4c5" class="p-3 border border-gray-200 font-bold text-red-800 bg-red-50"></div>
+                        <div id="r4c6" class="p-3 border border-gray-200 font-bold text-red-800 bg-red-50"></div>
+                        <div id="r4c7" class="p-3 border border-gray-200 font-bold text-red-800 bg-red-50"></div>
+                    </div>
+                    <!-- Secondary Bases (Row 5, 6, 7) Labels only for context -->
+                    <div class="grid grid-cols-7 gap-0 text-xs text-gray-500 mt-1 ml-[12.5%] text-center">
+                        <div>ตนุ</div>
+                        <div>กดุมภะ</div>
+                        <div>สหัสชะ</div>
+                        <div>พันธุ</div>
+                        <div>ปุตตะ</div>
+                        <div>อริ</div>
+                        <div>ปัตนิ</div>
+                    </div>
+                </div>
+                
+                <!-- Calculation Info -->
+                <div class="mt-4 p-4 bg-yellow-50 rounded border border-yellow-200 text-sm">
+                    <p><strong>รหัสวัน (อัตตะ):</strong> <span id="dayCodeVal"></span></p>
+                    <p><strong>รหัสเดือน (หินะ):</strong> <span id="monthCodeVal"></span></p>
+                    <p><strong>รหัสปี (ธนัง):</strong> <span id="yearCodeVal"></span> (พ.ศ. - 1181) เศษ 7</p>
+                </div>
+            </div>
+
+            <!-- Taksa (Planetary Periods) -->
+            <div class="bg-white rounded-lg p-6 mb-6 card-shadow">
+                <h3 class="text-lg font-bold text-gray-800 mb-4 border-l-4 border-yellow-500 pl-2">ภูมิทักษา (ตามวันเกิด)</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="taksaContainer">
+                    <!-- Taksa Items Injected Here -->
+                </div>
+            </div>
+
+            <!-- Prediction / Interpretations -->
+            <div class="bg-white rounded-lg p-6 card-shadow">
+                <h3 class="text-lg font-bold text-gray-800 mb-4 border-l-4 border-red-500 pl-2">คำพยากรณ์พื้นดวง</h3>
+                <div id="predictions" class="space-y-4">
+                    <!-- Dynamic Predictions -->
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-gray-400 py-6 text-center text-sm">
+        <p>พัฒนาตามหลักคัมภีร์สุวรรณโคมคำ</p>
+        <p class="mt-1">ใช้เพื่อการศึกษาโหราศาสตร์ไทยพุทธเท่านั้น</p>
+    </footer>
+
+    <script>
+        // Data for Interpretations
+        const planets = [
+            { id: 1, name: "อาทิตย์ (๑)", element: "ไฟ", quality: "ยศศักดิ์, ผู้นำ, ร้อนแรง" },
+            { id: 2, name: "จันทร์ (๒)", element: "ดิน", quality: "บริการ, อ่อนโยน, จริตมารยา" },
+            { id: 3, name: "อังคาร (๓)", element: "ลม", quality: "ขยัน, กล้าหาญ, โทสะ" },
+            { id: 4, name: "พุธ (๔)", element: "น้ำ", quality: "เจรจา, ปัญญา, การค้า" },
+            { id: 5, name: "พฤหัสบดี (๕)", element: "ดิน", quality: "คุณธรรม, ครู, วิชาการ" },
+            { id: 6, name: "ศุกร์ (๖)", element: "น้ำ", quality: "ความรัก, การเงิน, กิเลส" },
+            { id: 7, name: "เสาร์ (๗)", element: "ไฟ", quality: "อดทน, ทุกข์, งานหนัก" }
+        ];
+
+        const houseMeanings = [
+            "อัตตะ (ตัวตน, วาสนา)", "หินะ (ความเสื่อม, ภัย)", "ธนัง (ทรัพย์สิน, การเงิน)",
+            "ปิตา (บิดา, ผู้ใหญ่, เกียรติ)", "มาตา (มารดา, ความช่วยเหลือ)", "โภคา (สมบัติ, อาหาร)", "มัชฌิมา (ปานกลาง, ทั่วไป)",
+            "ตนุ (ตนเอง)", "กดุมภะ (การเงิน)", "สหัสชะ (เพื่อน)", "พันธุ (ญาติ)", "ปุตตะ (บุตรบริวาร)", "อริ (ศัตรู)", "ปัตนิ (คู่ครอง)"
+        ];
+
+        // Taksa Order: 1 -> 2 -> 3 -> 4 -> 7 -> 5 -> 8 -> 6 (Standard Thai Astrology)
+        // BUT Satta Abhidhamma often simplifies or uses specific flow. 
+        // We will use standard Taksa flow relative to day of birth.
+        // Order: Sun(1), Mon(2), Tue(3), Wed(4), Sat(7), Thu(5), Rahu(8), Fri(6)
+        // Note: Satta Abhidhamma usually maps 1-7 only in the 7-base grid. We will map Taksa based on the standard day number.
+        const taksaOrder = [1, 2, 3, 4, 7, 5, 8, 6]; 
+        const taksaTitles = ["บริวาร", "อายุ", "เดช", "ศรี", "มูละ", "อุตสาหะ", "มนตรี", "กาลกิณี"];
+
+        function getDayCode(date) {
+            // Sunday = 0 in JS, but 1 in Thai Astro.
+            let day = date.getDay();
+            return day === 0 ? 1 : day + 1; // Sun=1, Mon=2 ... Sat=7
+        }
+
+        function getMonthCode(date) {
+            // Thai Lunar Month Approximation
+            // December is usually Month 1 (Ai), Jan = Month 2 (Yi), etc.
+            // Simplified Logic for Satta Abhidhamma (Traditional counts):
+            // Dec=1, Jan=2, Feb=3, Mar=4, Apr=5, May=6, Jun=7, Jul=1, Aug=2, Sep=3, Oct=4, Nov=5
+            // This is a common approximation.
+            let m = date.getMonth(); // 0 = Jan
+            let thaiMonth = (m + 2); // Jan(0)+2 = 2.
+            if (thaiMonth > 7) thaiMonth = thaiMonth % 7;
+            if (thaiMonth === 0) thaiMonth = 7;
+            return thaiMonth;
+        }
+
+        function getYearCode(beYear) {
+            // Formula from PDF: (BE - 1181) % 7
+            // If result 0, use 7.
+            if (!beYear) return 1;
+            let remainder = (beYear - 1181) % 7;
+            return remainder === 0 ? 7 : remainder;
+        }
+
+        function calculateSatta() {
+            const dateInput = document.getElementById('birthDate').value;
+            const beYearInput = document.getElementById('beYear').value;
+
+            if (!dateInput || !beYearInput) {
+                alert("กรุณากรอกข้อมูลวันที่และปี พ.ศ. ให้ครบถ้วน");
+                return;
+            }
+
+            const date = new Date(dateInput);
+            
+            // 1. Calculate Codes
+            const dayCode = getDayCode(date);
+            const monthCode = getMonthCode(date);
+            const yearCode = getYearCode(parseInt(beYearInput));
+
+            document.getElementById('dayCodeVal').textContent = dayCode;
+            document.getElementById('monthCodeVal').textContent = monthCode;
+            document.getElementById('yearCodeVal').textContent = yearCode;
+
+            // 2. Generate Grid Data
+            let r1 = [], r2 = [], r3 = [], r4 = [];
+
+            // Row 1: Start at dayCode, increment, loop 1-7
+            for (let i = 0; i < 7; i++) {
+                let val = (dayCode + i);
+                if (val > 7) val -= 7;
+                r1.push(val);
+            }
+
+            // Row 2: Start at monthCode
+            for (let i = 0; i < 7; i++) {
+                let val = (monthCode + i);
+                if (val > 7) val -= 7;
+                r2.push(val);
+            }
+
+            // Row 3: Start at yearCode
+            for (let i = 0; i < 7; i++) {
+                let val = (yearCode + i);
+                if (val > 7) val -= 7;
+                r3.push(val);
+            }
+
+            // Row 4: Sum of columns
+            for (let i = 0; i < 7; i++) {
+                let sum = r1[i] + r2[i] + r3[i];
+                // Satta rule: Subtract 7 until <= 7
+                while (sum > 7) sum -= 7;
+                r4.push(sum);
+            }
+
+            // 3. Render Grid
+            for (let i = 0; i < 7; i++) {
+                renderCell(`r1c${i+1}`, r1[i]);
+                renderCell(`r2c${i+1}`, r2[i]);
+                renderCell(`r3c${i+1}`, r3[i]);
+                renderCell(`r4c${i+1}`, r4[i]);
+            }
+
+            // 4. Calculate Taksa
+            renderTaksa(dayCode);
+
+            // 5. Generate Predictions
+            generatePredictions(r1, r2, r3, r4);
+
+            // 6. Show Results
+            const days = ["อาทิตย์", "จันทร์", "อังคาร", "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์"];
+            const dStr = days[dayCode - 1];
+            document.getElementById('birthDetails').innerHTML = `เกิดวัน${dStr} เดือน(ทางโหร) ${monthCode} ปีเศษ ${yearCode}`;
+            
+            document.getElementById('resultSection').classList.remove('hidden');
+            // Scroll to result
+            document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function renderCell(id, val) {
+            const el = document.getElementById(id);
+            el.innerHTML = `<span class="text-xl font-bold">${val}</span>`;
+            // Add subtle tooltip or planet class
+            el.title = planets.find(p => p.id === val).name;
+        }
+
+        function renderTaksa(dayCode) {
+            // Find start index in taksaOrder
+            // Note: If dayCode is 1 (Sun), start at index 0 (1).
+            // If dayCode is 2 (Mon), start at index 1 (2).
+            // Mapping standard dayCode to Taksa Array Index
+            let startIndex = -1;
+            
+            // Map DayCode 1..7 to Taksa Value to find index
+            // 1->1, 2->2, 3->3, 4->4, 5->5, 6->6, 7->7
+            // However, Taksa has 8 (Rahu). Usually for Wed night.
+            // For this basic version, we stick to standard day mapping.
+            // Sun(1) is index 0.
+            
+            const mapping = {1:1, 2:2, 3:3, 4:4, 5:5, 6:6, 7:7};
+            const targetVal = mapping[dayCode];
+            
+            startIndex = taksaOrder.indexOf(targetVal);
+
+            const container = document.getElementById('taksaContainer');
+            container.innerHTML = '';
+
+            for (let i = 0; i < 8; i++) {
+                let currentIdx = (startIndex + i) % 8;
+                let planetNum = taksaOrder[currentIdx];
+                let title = taksaTitles[i];
+                let planetName = (planetNum === 8) ? "ราหู (๘)" : planets.find(p => p.id === planetNum).name;
+                
+                let bgColor = "bg-gray-50";
+                let textColor = "text-gray-600";
+                let border = "border-gray-200";
+
+                if (title === "บริวาร") { bgColor = "bg-blue-50"; textColor = "text-blue-800"; border = "border-blue-200"; }
+                if (title === "ศรี") { bgColor = "bg-green-50"; textColor = "text-green-800"; border = "border-green-200"; }
+                if (title === "กาลกิณี") { bgColor = "bg-red-50"; textColor = "text-red-800"; border = "border-red-200"; }
+
+                const div = document.createElement('div');
+                div.className = `${bgColor} p-3 rounded border ${border} flex flex-col items-center`;
+                div.innerHTML = `
+                    <span class="text-xs font-bold uppercase tracking-wider mb-1 ${textColor}">${title}</span>
+                    <span class="text-lg font-bold">${planetNum}</span>
+                    <span class="text-xs text-gray-500">${planetName.split(' ')[0]}</span>
+                `;
+                container.appendChild(div);
+            }
+        }
+
+        function generatePredictions(r1, r2, r3, r4) {
+            const container = document.getElementById('predictions');
+            container.innerHTML = '';
+
+            // Helper to add card
+            const addCard = (title, content, type="neutral") => {
+                let colorClass = "border-l-4 border-gray-400";
+                if(type === "good") colorClass = "border-l-4 border-green-500 bg-green-50";
+                if(type === "warn") colorClass = "border-l-4 border-orange-500 bg-orange-50";
+                
+                const div = document.createElement('div');
+                div.className = `p-4 rounded shadow-sm bg-white ${colorClass}`;
+                div.innerHTML = `<h4 class="font-bold mb-1">${title}</h4><p class="text-sm text-gray-700">${content}</p>`;
+                container.appendChild(div);
+            };
+
+            // 1. Analyze Atta (Row 1, Col 1) - Self
+            const atta = r1[0];
+            const attaPlanet = planets.find(p => p.id === atta);
+            addCard("อัตตะ (ตัวตน)", `ดาว ${attaPlanet.name} สถิต: ${attaPlanet.quality} เป็นพื้นฐานนิสัยใจคอ`);
+
+            // 2. Analyze Base 4 (Sum) - Result/Karma
+            const resultAtta = r4[0]; // Sum at Atta position
+            addCard("บทสรุปวาสนา (ฐานที่ 4)", `ตกเลข ${resultAtta} (${planets.find(p => p.id === resultAtta).name}) - บ่งบอกถึงกำลังของวาสนาที่เกิดจากการกระทำ`);
+
+            // 3. Highlight "Hina" (Row 1, Col 2) - Weakness
+            const hina = r1[1];
+            addCard("จุดเปราะบาง (หินะ)", `ดาว ${hina} เป็นหินะ ต้องระวังเรื่องเกี่ยวกับดาวนี้ (${planets.find(p=>p.id===hina).quality})`, "warn");
+
+            // 4. Highlight "Dhanang" (Row 1, Col 3) - Wealth
+            const dhanang = r1[2];
+            addCard("ฐานะการเงิน (ธนัง)", `ดาว ${dhanang} เป็นธนัง แนวโน้มเรื่องทรัพย์สิน: ${planets.find(p=>p.id===dhanang).quality}`, "good");
+
+            // 5. Special Patterns (Simple Example)
+            // If Day and Month code are same -> Double strength
+            if (r1[0] === r2[0]) {
+                addCard("เกณฑ์พิเศษ", "ดาววันและเดือนเป็นดาวเดียวกัน (อัตตะ-ตนุ) : เป็นคนเชื่อมั่นในตนเองสูง ดื้อรั้นแต่มีความมุ่งมั่นแรงกล้า", "neutral");
+            }
+            
+            // Sum Code Analysis (Base 4)
+            if (r4.includes(1)) addCard("อิทธิพลอาทิตย์ในฐาน 4", "มักมียศศักดิ์ หรือมีความร้อนใจเป็นที่ตั้ง");
+            if (r4.includes(6)) addCard("อิทธิพลศุกร์ในฐาน 4", "มักเกี่ยวข้องกับความสวยงาม ศิลปะ หรือการเงินคล่องตัว", "good");
+            if (r4.includes(7)) addCard("อิทธิพลเสาร์ในฐาน 4", "ชีวิตต้องต่อสู้ดิ้นรน อดทนจึงจะสำเร็จ", "warn");
+        }
+    </script>
+</body>
+</html>
