@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สัตตาภิธรรม AI อัจฉริยะ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&family=Noto+Serif+Thai:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Marked.js for Markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #fdfbf7;
+            background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        h1, h2, h3, h4 {
+            font-family: 'Noto Serif Thai', serif;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #991b1b;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* Markdown Styles */
+        .prose h3 { color: #7f1d1d; font-size: 1.25rem; font-weight: bold; margin-top: 1.5rem; margin-bottom: 0.5rem; border-bottom: 2px solid #fca5a5; padding-bottom: 0.25rem; }
+        .prose strong { color: #92400e; }
+        .prose ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1rem; }
+        .prose p { margin-bottom: 1rem; line-height: 1.7; }
+    </style>
+</head>
+<body class="text-gray-800 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-red-900 to-red-800 text-white py-6 shadow-xl relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/thai-pattern.png')]"></div>
+        <div class="container mx-auto px-4 text-center relative z-10">
+            <h1 class="text-3xl md:text-4xl font-bold text-yellow-400 drop-shadow-sm">สัตตาภิธรรม AI อัจฉริยะ</h1>
+            <p class="text-yellow-100 mt-2 font-light">วิเคราะห์ดวงชะตาด้วยคัมภีร์สุวรรณโคมคำ ผสานปัญญาประดิษฐ์</p>
+        </div>
+    </header>
+
+    <main class="flex-grow container mx-auto px-4 py-8 max-w-5xl">
+        
+        <!-- Input Section -->
+        <div class="glass-panel rounded-xl p-6 md:p-8 shadow-lg border-t-4 border-yellow-500 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <label class="block text-gray-700 font-bold mb-2">วันเกิด (สากล)</label>
+                    <input type="date" id="birthDate" class="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-transparent transition shadow-sm">
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-bold mb-2">เวลาเกิด</label>
+                    <input type="time" id="birthTime" value="06:00" class="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-transparent transition shadow-sm">
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-bold mb-2">ปี พ.ศ. เกิด</label>
+                    <input type="number" id="beYear" placeholder="เช่น 2535" class="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-red-500 focus:border-transparent transition shadow-sm">
+                </div>
+            </div>
+            <button onclick="calculateAndAnalyze()" class="mt-6 w-full bg-red-800 hover:bg-red-900 text-white text-lg font-bold py-3 px-6 rounded-lg shadow-md hover:shadow-xl transition duration-300 transform active:scale-95 flex justify-center items-center gap-2">
+                <span>🔮</span> ผูกดวงและวิเคราะห์
+            </button>
+        </div>
+
+        <!-- Result Container -->
+        <div id="resultContainer" class="hidden space-y-8">
+            
+            <!-- Basic Chart (The Grid) -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
+                <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                    <h2 class="text-xl font-bold text-gray-800">ผังเลข ๗ ตัว ๔ ฐาน</h2>
+                    <span id="chartDateInfo" class="text-sm text-gray-500"></span>
+                </div>
+                <div class="p-6 overflow-x-auto">
+                    <div class="min-w-[600px] mx-auto text-center">
+                        <!-- Grid Header -->
+                        <div class="grid grid-cols-8 gap-1 mb-2 text-sm font-bold text-gray-600">
+                            <div class="py-2">ฐาน</div>
+                            <div class="bg-yellow-100 py-2 rounded">อัตตะ</div>
+                            <div class="bg-yellow-100 py-2 rounded">หินะ</div>
+                            <div class="bg-yellow-100 py-2 rounded">ธนัง</div>
+                            <div class="bg-yellow-100 py-2 rounded">ปิตา</div>
+                            <div class="bg-yellow-100 py-2 rounded">มาตา</div>
+                            <div class="bg-yellow-100 py-2 rounded">โภคา</div>
+                            <div class="bg-yellow-100 py-2 rounded">มัชฌิมา</div>
+                        </div>
+                        <!-- Rows -->
+                        <div id="chartRows" class="text-lg font-medium text-gray-800 space-y-1">
+                            <!-- Rows injected by JS -->
+                        </div>
+                    </div>
+                </div>
+                <!-- Taksa Bar -->
+                <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
+                    <h3 class="text-sm font-bold text-gray-500 mb-3 uppercase tracking-wide">ภูมิทักษาเสวยอายุ</h3>
+                    <div id="taksaBar" class="grid grid-cols-8 gap-2 text-center text-sm">
+                        <!-- Taksa items injected by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Analysis Section -->
+            <div class="bg-white rounded-xl shadow-lg border border-red-100 overflow-hidden relative">
+                <!-- AI Header -->
+                <div class="bg-gradient-to-r from-red-50 to-white px-6 py-4 border-b border-red-100 flex items-center gap-3">
+                    <div class="bg-red-100 p-2 rounded-full">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold text-red-900">บทวิเคราะห์โดย AI โหราจารย์</h2>
+                        <p class="text-xs text-red-600">ประมวลผลจากคัมภีร์สุวรรณโคมคำและหลักสัตตาภิธรรม</p>
+                    </div>
+                </div>
+
+                <!-- AI Content Area -->
+                <div class="p-6 md:p-8 min-h-[300px]">
+                    
+                    <!-- Loading State -->
+                    <div id="aiLoading" class="hidden flex-col items-center justify-center py-12 text-center">
+                        <div class="loading-spinner mb-4"></div>
+                        <p class="text-gray-600 font-medium animate-pulse">กำลังตรวจสอบดวงชะตา...</p>
+                        <p class="text-sm text-gray-400 mt-2">พิจารณาฐานที่ ๔ และกำลังพระเคราะห์</p>
+                    </div>
+
+                    <!-- AI Result -->
+                    <div id="aiResult" class="prose max-w-none text-gray-700 hidden">
+                        <!-- Markdown content will appear here -->
+                    </div>
+
+                    <!-- Generate Button (Initial State) -->
+                    <div id="aiStartBtnContainer" class="flex justify-center py-8">
+                        <button onclick="triggerAIAnalysis()" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transition transform hover:scale-105 flex items-center gap-2">
+                            <span>✨</span> อ่านคำทำนายละเอียด
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="bg-gray-900 text-gray-400 py-8 text-center text-sm">
+        <p>พัฒนาโดย Gemini AI & สัตตาภิธรรม</p>
+        <p class="mt-2 text-xs text-gray-600">คำทำนายเป็นเพียงแนวทางในการดำเนินชีวิต โปรดใช้วิจารณญาณ</p>
+    </footer>
+
+    <script>
+        // --- Configuration & Data ---
+        const apiKey = ""; // API Key provided by environment
+        const planets = [
+            { id: 1, name: "อาทิตย์", element: "ไฟ" },
+            { id: 2, name: "จันทร์", element: "ดิน" },
+            { id: 3, name: "อังคาร", element: "ลม" },
+            { id: 4, name: "พุธ", element: "น้ำ" },
+            { id: 5, name: "พฤหัสบดี", element: "ดิน" },
+            { id: 6, name: "ศุกร์", element: "น้ำ" },
+            { id: 7, name: "เสาร์", element: "ไฟ" }
+        ];
+        
+        let calculatedData = null; // Store data for AI
+
+        // --- Core Calculation Logic ---
+        function getDayCode(date) {
+            let day = date.getDay();
+            return day === 0 ? 1 : day + 1; // Sun=1
+        }
+
+        function getMonthCode(date) {
+            let m = date.getMonth(); 
+            let thaiMonth = (m + 2); // Dec=1 (approx for demo), Jan=2
+            if (thaiMonth > 7) thaiMonth = thaiMonth % 7;
+            if (thaiMonth === 0) thaiMonth = 7;
+            return thaiMonth;
+        }
+
+        function getYearCode(beYear) {
+            if (!beYear) return 1;
+            let remainder = (beYear - 1181) % 7;
+            return remainder === 0 ? 7 : remainder;
+        }
+
+        function calculateAndAnalyze() {
+            const dateInput = document.getElementById('birthDate').value;
+            const beYearInput = document.getElementById('beYear').value;
+
+            if (!dateInput || !beYearInput) {
+                alert("กรุณากรอกข้อมูลให้ครบถ้วน");
+                return;
+            }
+
+            const date = new Date(dateInput);
+            const dayCode = getDayCode(date);
+            const monthCode = getMonthCode(date);
+            const yearCode = getYearCode(parseInt(beYearInput));
+
+            // Generate Grid
+            let r1 = [], r2 = [], r3 = [], r4 = [];
+            for (let i = 0; i < 7; i++) {
+                let v1 = (dayCode + i) > 7 ? (dayCode + i) - 7 : (dayCode + i);
+                let v2 = (monthCode + i) > 7 ? (monthCode + i) - 7 : (monthCode + i);
+                let v3 = (yearCode + i) > 7 ? (yearCode + i) - 7 : (yearCode + i);
+                let sum = v1 + v2 + v3;
+                let v4 = sum; 
+                // Simplified Satta rule: Subtract 7 until <= 7
+                while (v4 > 7) v4 -= 7;
+
+                r1.push(v1); r2.push(v2); r3.push(v3); r4.push(v4);
+            }
+
+            // Taksa Calculation (Based on Day of Birth)
+            // Order: 1 -> 2 -> 3 -> 4 -> 7 -> 5 -> 8 -> 6
+            // We map the DayCode to this flow.
+            const taksaOrderRef = [1, 2, 3, 4, 7, 5, 8, 6];
+            const dayMap = {1:1, 2:2, 3:3, 4:4, 5:5, 6:6, 7:7};
+            const startVal = dayMap[dayCode];
+            const startIdx = taksaOrderRef.indexOf(startVal);
+            
+            let taksaArr = [];
+            const titles = ["บริวาร", "อายุ", "เดช", "ศรี", "มูละ", "อุตสาหะ", "มนตรี", "กาลกิณี"];
+            
+            for(let i=0; i<8; i++) {
+                let idx = (startIdx + i) % 8;
+                let pNum = taksaOrderRef[idx];
+                let pName = (pNum === 8) ? "ราหู" : planets.find(p=>p.id===pNum).name;
+                taksaArr.push({ title: titles[i], planet: pName, num: pNum });
+            }
+
+            // Store for AI
+            calculatedData = {
+                dob: `${date.getDate()}/${date.getMonth()+1}/${beYearInput}`,
+                dayCode, monthCode, yearCode,
+                grid: { r1, r2, r3, r4 },
+                taksa: taksaArr
+            };
+
+            renderUI(calculatedData);
+        }
+
+        // --- Rendering UI ---
+        function renderUI(data) {
+            document.getElementById('resultContainer').classList.remove('hidden');
+            
+            // Render Grid Rows
+            const labels = ["วัน", "เดือน", "ปี", "ฐาน ๔"];
+            const rows = [data.grid.r1, data.grid.r2, data.grid.r3, data.grid.r4];
+            let html = "";
+            
+            rows.forEach((row, idx) => {
+                let bgClass = idx === 3 ? "bg-red-50 text-red-800 font-bold" : "bg-white";
+                let rowHtml = `<div class="grid grid-cols-8 gap-1 border-b border-gray-100 ${bgClass}">
+                    <div class="py-3 text-sm text-gray-500 font-bold bg-gray-50 flex items-center justify-center">${labels[idx]}</div>`;
+                
+                row.forEach(num => {
+                    rowHtml += `<div class="py-3 border-l border-gray-100 flex items-center justify-center">${num}</div>`;
+                });
+                rowHtml += `</div>`;
+                html += rowHtml;
+            });
+            document.getElementById('chartRows').innerHTML = html;
+
+            // Render Taksa
+            let taksaHtml = "";
+            data.taksa.forEach(t => {
+                let colorClass = "bg-gray-100 text-gray-600";
+                if(t.title === "ศรี") colorClass = "bg-green-100 text-green-800 border-green-200 border";
+                if(t.title === "กาลกิณี") colorClass = "bg-red-100 text-red-800 border-red-200 border";
+                
+                taksaHtml += `
+                    <div class="${colorClass} p-2 rounded flex flex-col items-center">
+                        <span class="text-xs font-bold">${t.title}</span>
+                        <span class="text-lg font-bold">${t.num}</span>
+                        <span class="text-[10px] opacity-75">${t.planet}</span>
+                    </div>
+                `;
+            });
+            document.getElementById('taksaBar').innerHTML = taksaHtml;
+
+            // Reset AI Section
+            document.getElementById('aiResult').innerHTML = "";
+            document.getElementById('aiResult').classList.add('hidden');
+            document.getElementById('aiStartBtnContainer').classList.remove('hidden');
+            document.getElementById('aiLoading').classList.add('hidden');
+
+            // Scroll
+            setTimeout(() => {
+                document.getElementById('resultContainer').scrollIntoView({ behavior: 'smooth' });
+            }, 100);
+        }
+
+        // --- AI Integration ---
+        async function triggerAIAnalysis() {
+            if (!calculatedData) return;
+
+            const ui = {
+                btn: document.getElementById('aiStartBtnContainer'),
+                loading: document.getElementById('aiLoading'),
+                result: document.getElementById('aiResult')
+            };
+
+            ui.btn.classList.add('hidden');
+            ui.loading.classList.remove('hidden');
+            ui.loading.classList.add('flex');
+
+            try {
+                // Construct Prompt
+                const prompt = `
+                    คุณคือโหราจารย์ผู้เชี่ยวชาญในวิชา "สัตตาภิธรรม" (เลข 7 ตัว 4 ฐาน) และคัมภีร์สุวรรณโคมคำ
+                    จงวิเคราะห์ดวงชะตาจากข้อมูลตัวเลขต่อไปนี้:
+
+                    ข้อมูลดวงชะตา:
+                    - วันเกิด: ${calculatedData.dob} (รหัสวัน: ${calculatedData.dayCode})
+                    - แถวที่ 1 (วัน/อัตตะ-มัชฌิมา): [${calculatedData.grid.r1.join(', ')}]
+                    - แถวที่ 2 (เดือน/ตนุ-ทาสา): [${calculatedData.grid.r2.join(', ')}]
+                    - แถวที่ 3 (ปี/มรณะ-ทาสี): [${calculatedData.grid.r3.join(', ')}]
+                    - แถวที่ 4 (ผลลัพธ์/กำลังพระเคราะห์): [${calculatedData.grid.r4.join(', ')}]
+                    
+                    ทักษา (ตามวันเกิด):
+                    - บริวาร: ${calculatedData.taksa.find(t=>t.title==='บริวาร').planet}
+                    - ศรี (โชคลาภ): ${calculatedData.taksa.find(t=>t.title==='ศรี').planet}
+                    - กาลกิณี (อุปสรรค): ${calculatedData.taksa.find(t=>t.title==='กาลกิณี').planet}
+
+                    คำสั่งในการพยากรณ์:
+                    1. **วิเคราะห์ตัวตน (อัตตะ/ตนุ):** ดูดาวในตำแหน่งอัตตะ (ตัวแรกแถว 1) สัมพันธ์กับฐานที่ 4 ว่านิสัยลึกๆ เป็นอย่างไร เข้มแข็งไหม
+                    2. **วิเคราะห์การเงิน (ธนัง/กดุมภะ):** ดูตำแหน่งธนัง (ตัวที่ 3 แถว 1) และฐานที่ 4 สัมพันธ์กันอย่างไร รวยไหม เก็บเงินอยู่ไหม
+                    3. **จุดเสียและข้อควรระวัง (หินะ/อริ/กาลกิณี):** ดูตำแหน่งหินะ (ตัวที่ 2 แถว 1) และดาวที่เป็นกาลกิณีทางทักษา ว่าต้องระวังเรื่องอะไร
+                    4. **บทสรุปวาสนา:** ดูภาพรวมของฐานที่ 4 ว่ามีดาวคู่มิตร คู่ศัตรู หรือดาวคุณภาพดี (เช่น อาทิตย์ 6, จันทร์ 15, พฤหัส 19 ฯลฯ ในระบบเลข 7 ตัว ถ้ามี) หรือดูแค่ความสัมพันธ์ธาตุ
+                    5. **คำแนะนำการใช้ชีวิต:** ให้ข้อคิดตามหลักธรรมะ (สัจจะ ศีล ธรรม) เพื่อแก้ดวง
+
+                    รูปแบบการตอบ:
+                    ใช้ภาษาที่สละสลวย เข้าใจง่าย แบบหมอดูอาวุโส ให้กำลังใจ ใช้ Markdown จัดหัวข้อให้น่าอ่าน (เช่น ### หัวข้อ)
+                `;
+
+                // Call Gemini API
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }]
+                    })
+                });
+
+                if (!response.ok) throw new Error("API Connection Failed");
+
+                const result = await response.json();
+                const text = result.candidates[0].content.parts[0].text;
+
+                // Render Markdown
+                ui.result.innerHTML = marked.parse(text);
+                ui.result.classList.remove('hidden');
+
+            } catch (error) {
+                console.error(error);
+                ui.result.innerHTML = `<div class="p-4 bg-red-50 text-red-800 rounded">เกิดข้อผิดพลาดในการเชื่อมต่อกับ AI กรุณาลองใหม่อีกครั้ง (${error.message})</div>`;
+                ui.result.classList.remove('hidden');
+                ui.btn.classList.remove('hidden');
+            } finally {
+                ui.loading.classList.add('hidden');
+                ui.loading.classList.remove('flex');
+            }
+        }
+    </script>
+</body>
+</html>
