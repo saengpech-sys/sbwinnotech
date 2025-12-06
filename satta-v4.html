@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สัตตาภิธรรม สุวรรณโคมคำ Pro</title>
+    
+    <!-- Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://js.stripe.com/v3/"></script>
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-functions-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600&family=Charm:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Sarabun', sans-serif; background-color: #fdfbf7; background-image: radial-gradient(#d1d5db 1px, transparent 1px); background-size: 20px 20px; }
+        .font-thai { font-family: 'Charm', cursive; }
+        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255, 215, 0, 0.3); }
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #991b1b; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        /* Markdown Style */
+        .prose h3 { color: #7f1d1d; border-bottom: 2px solid #fcd34d; padding-bottom: 0.5rem; margin-top: 1.5rem; font-weight: bold; }
+        .prose strong { color: #b45309; }
+    </style>
+</head>
+<body class="text-gray-800 min-h-screen flex flex-col">
+
+    <header class="bg-gradient-to-r from-red-900 to-red-800 text-white py-6 shadow-xl text-center relative overflow-hidden">
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/thai-pattern.png')] opacity-10"></div>
+        <h1 class="text-4xl font-thai font-bold text-yellow-400 drop-shadow-md">สัตตาภิธรรม AI</h1>
+        <p class="text-yellow-100 text-sm mt-1">ผูกดวง • จ่ายง่าย • วิเคราะห์ลึก</p>
+    </header>
+
+    <main class="flex-grow container mx-auto px-4 py-8 max-w-4xl">
+        
+        <!-- Step 1: Input -->
+        <div id="inputStep" class="glass rounded-xl p-8 shadow-xl mb-8 transform transition hover:scale-[1.01]">
+            <h2 class="text-2xl font-bold text-red-900 mb-6 flex items-center gap-2">
+                <span class="bg-red-100 p-2 rounded-full text-xl">📅</span> กรอกข้อมูลดวงชะตา
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <label class="block text-gray-700 font-bold mb-2">วันเกิด</label>
+                    <input type="date" id="birthDate" class="w-full p-3 rounded border border-gray-300 focus:ring-2 focus:ring-red-500 transition">
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-bold mb-2">เวลาเกิด</label>
+                    <input type="time" id="birthTime" value="06:00" class="w-full p-3 rounded border border-gray-300 focus:ring-2 focus:ring-red-500 transition">
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-bold mb-2">ปี พ.ศ. เกิด</label>
+                    <input type="number" id="beYear" placeholder="2535" class="w-full p-3 rounded border border-gray-300 focus:ring-2 focus:ring-red-500 transition">
+                </div>
+            </div>
+            <button onclick="calculateData()" class="mt-8 w-full bg-red-800 hover:bg-red-900 text-white text-lg font-bold py-3 rounded-lg shadow-lg transition flex justify-center items-center gap-2">
+                ตรวจสอบดวงเบื้องต้น
+            </button>
+        </div>
+
+        <!-- Step 2: Preview & Payment -->
+        <div id="paymentStep" class="hidden space-y-6">
+            <!-- Basic Chart Preview -->
+            <div class="bg-white rounded-xl shadow border border-gray-200 p-6">
+                <h3 class="text-lg font-bold text-gray-700 mb-4 border-l-4 border-yellow-500 pl-3">ผังเลข ๗ ตัวของคุณ</h3>
+                <div class="overflow-x-auto">
+                    <div id="chartPreview" class="min-w-[500px] text-center grid grid-cols-8 gap-1 text-sm">
+                        <!-- JS injects grid here -->
+                    </div>
+                </div>
+                <div class="mt-4 p-3 bg-yellow-50 text-yellow-800 text-sm rounded border border-yellow-200">
+                    🔒 ผลการผูกดวงเบื้องต้นแสดงแล้ว หากต้องการคำทำนายเจาะลึกโดย AI โหราจารย์ กรุณาชำระค่าครู
+                </div>
+            </div>
+
+            <!-- Payment Box -->
+            <div class="glass rounded-xl p-8 shadow-2xl border-t-4 border-blue-500 text-center">
+                <h2 class="text-2xl font-bold text-gray-900 mb-2">ปลดล็อกคำทำนายฉบับสมบูรณ์</h2>
+                <p class="text-gray-600 mb-6">วิเคราะห์เจาะลึก วาสนา การเงิน และวิธีแก้กรรม ด้วย AI อัจฉริยะ</p>
+                
+                <div class="text-4xl font-bold text-red-600 mb-6">฿99.00</div>
+
+                <div id="paymentElementContainer" class="mb-6 hidden">
+                    <!-- Stripe Element will be mounted here -->
+                    <div id="payment-element"></div>
+                </div>
+
+                <button id="payBtn" onclick="initiatePayment()" class="w-full md:w-1/2 mx-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full shadow-lg transition transform hover:scale-105 flex justify-center items-center gap-2">
+                    <span>💳</span> สแกนจ่ายด้วย PromptPay
+                </button>
+                
+                <div id="processingMsg" class="hidden mt-4 text-blue-600 font-semibold flex flex-col items-center">
+                    <div class="spinner mb-2"></div>
+                    กำลังดำเนินการ... กรุณาสแกน QR Code ที่ปรากฏ
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: AI Analysis Result -->
+        <div id="resultStep" class="hidden bg-white rounded-xl shadow-2xl border border-yellow-400 overflow-hidden">
+            <div class="bg-gray-900 text-yellow-400 px-8 py-4 flex items-center gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
+                <h2 class="text-xl font-bold">คำทำนายสัตตาภิธรรม AI</h2>
+            </div>
+            <div class="p-8">
+                <div id="aiLoading" class="flex flex-col items-center py-10">
+                    <div class="spinner mb-4"></div>
+                    <p class="text-gray-600 animate-pulse">กำลังเข้าฌานตรวจดวงชะตา...</p>
+                </div>
+                <div id="aiContent" class="prose max-w-none hidden"></div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // --- 1. CONFIGURATION ---
+        // ใส่ค่า Firebase Config ของคุณที่นี่ (หาได้จาก Firebase Console > Project Settings)
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT.appspot.com",
+            messagingSenderId: "SENDER_ID",
+            appId: "APP_ID"
+        };
+
+        // ใส่ Stripe Public Key (ไม่ใช่ Secret Key นะครับ)
+        const stripe = Stripe('pk_test_YOUR_STRIPE_PUBLIC_KEY');
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        // ใช้ Region เดียวกับที่ deploy function (เช่น us-central1 หรือ asia-southeast1)
+        const functions = firebase.functions();
+        
+        // --- DATA STORE ---
+        let userData = {};
+        let elements;
+
+        // --- 2. LOGIC ผูกดวง (Frontend) ---
+        function calculateData() {
+            const dateVal = document.getElementById('birthDate').value;
+            const beYearVal = document.getElementById('beYear').value;
+
+            if(!dateVal || !beYearVal) { alert("กรุณากรอกข้อมูลให้ครบ"); return; }
+
+            const date = new Date(dateVal);
+            let dayCode = date.getDay() === 0 ? 1 : date.getDay() + 1;
+            
+            let m = date.getMonth();
+            let monthCode = (m + 2) > 7 ? (m + 2) - 7 : (m + 2);
+            if(monthCode === 0) monthCode = 7;
+
+            let yearCode = (parseInt(beYearVal) - 1181) % 7;
+            if(yearCode <= 0) yearCode = 7;
+
+            let r1=[], r2=[], r3=[], r4=[];
+            for(let i=0; i<7; i++) {
+                let v1 = (dayCode+i)>7 ? (dayCode+i)-7 : (dayCode+i);
+                let v2 = (monthCode+i)>7 ? (monthCode+i)-7 : (monthCode+i);
+                let v3 = (yearCode+i)>7 ? (yearCode+i)-7 : (yearCode+i);
+                let v4 = v1+v2+v3;
+                while(v4>7) v4-=7;
+                r1.push(v1); r2.push(v2); r3.push(v3); r4.push(v4);
+            }
+
+            // คำนวณทักษา (อย่างง่าย)
+            const taksaFlow = [1,2,3,4,7,5,8,6];
+            const startIdx = taksaFlow.indexOf(dayCode);
+            const planets = ["", "อาทิตย์", "จันทร์", "อังคาร", "พุธ", "พฤหัส", "ศุกร์", "เสาร์", "ราหู"];
+            
+            userData = {
+                dob: `${date.getDate()}/${date.getMonth()+1}/${beYearVal}`,
+                dayCode,
+                grid: { r1: r1.join(','), r2: r2.join(','), r3: r3.join(','), r4: r4.join(',') },
+                taksa: {
+                    briwar: planets[taksaFlow[startIdx]],
+                    sri: planets[taksaFlow[(startIdx+3)%8]],
+                    kali: planets[taksaFlow[(startIdx+7)%8]]
+                }
+            };
+
+            renderPreview(r1, r2, r3, r4);
+            document.getElementById('inputStep').classList.add('hidden');
+            document.getElementById('paymentStep').classList.remove('hidden');
+        }
+
+        function renderPreview(r1, r2, r3, r4) {
+            const container = document.getElementById('chartPreview');
+            const labels = ["อัตตะ", "หินะ", "ธนัง", "ปิตา", "มาตา", "โภคา", "มัชฌิมา"];
+            let html = `<div class="font-bold bg-gray-100 p-1">ฐาน</div>`;
+            labels.forEach(l => html += `<div class="font-bold bg-yellow-100 p-1 rounded">${l}</div>`);
+            
+            // Show only first row for preview styling
+            html += `<div class="font-bold p-1">วัน</div>`;
+            r1.forEach(v => html += `<div class="p-1 border border-gray-100">${v}</div>`);
+            
+            container.innerHTML = html;
+        }
+
+        // --- 3. LOGIC จ่ายเงิน & เรียก AI ---
+        async function initiatePayment() {
+            const payBtn = document.getElementById('payBtn');
+            const processingMsg = document.getElementById('processingMsg');
+            
+            payBtn.classList.add('hidden');
+            processingMsg.classList.remove('hidden');
+
+            try {
+                // 1. เรียก Cloud Function เพื่อสร้าง PaymentIntent
+                const createPaymentIntent = functions.httpsCallable('createPaymentIntent');
+                const { data } = await createPaymentIntent({ amount: 9900 }); // 99 บาท
+
+                const clientSecret = data.clientSecret;
+
+                // 2. แสดง PromptPay QR Code
+                const appearance = { theme: 'stripe' };
+                elements = stripe.elements({ appearance, clientSecret });
+                
+                const paymentElement = elements.create("payment", {
+                    fields: { billingDetails: { name: 'never' } } // ลดช่องกรอกให้เหลือแค่จ่าย
+                });
+                
+                document.getElementById('paymentElementContainer').classList.remove('hidden');
+                paymentElement.mount("#payment-element");
+                
+                // เปลี่ยนปุ่มเป็น "ยืนยันการจ่าย"
+                const confirmBtn = document.createElement('button');
+                confirmBtn.className = "w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg mt-4 shadow";
+                confirmBtn.innerHTML = "ยืนยันการชำระเงิน";
+                confirmBtn.onclick = async () => {
+                    const { error, paymentIntent } = await stripe.confirmPromptPayPayment(clientSecret, {
+                        payment_method: {
+                            billing_details: { email: 'customer@example.com' }, // ใส่ Dummy หรือรับจาก user
+                        },
+                    });
+
+                    if (error) {
+                        alert(error.message);
+                    } else if (paymentIntent && paymentIntent.status === 'succeeded') {
+                        // จ่ายสำเร็จ -> เรียก AI
+                        onPaymentSuccess(paymentIntent.id);
+                    } else {
+                        // PromptPay ปกติจะรอ webhook หรือต้องเช็ค status
+                        // สำหรับ Demo นี้เราจะ assume success หาก process ผ่าน modal QR
+                        // หรือใช้ polling check status ที่ backend ได้
+                        // เพื่อความง่ายใน Demo เราจะส่งไปหน้าผลลัพธ์ (ใน production ต้อง check status)
+                        alert("กรุณาสแกน QR Code ให้เรียบร้อย แล้วกดตกลง");
+                        onPaymentSuccess(paymentIntent.id); 
+                    }
+                };
+                
+                document.getElementById('paymentElementContainer').appendChild(confirmBtn);
+                processingMsg.classList.add('hidden');
+
+            } catch (err) {
+                console.error(err);
+                alert("เกิดข้อผิดพลาดในการเชื่อมต่อระบบชำระเงิน");
+                payBtn.classList.remove('hidden');
+            }
+        }
+
+        async function onPaymentSuccess(paymentIntentId) {
+            document.getElementById('paymentStep').classList.add('hidden');
+            document.getElementById('resultStep').classList.remove('hidden');
+
+            try {
+                // เรียก Cloud Function วิเคราะห์ดวง (ส่ง paymentId ไปยืนยัน)
+                const analyzeHoroscope = functions.httpsCallable('analyzeHoroscope');
+                const result = await analyzeHoroscope({ 
+                    birthData: userData,
+                    paymentIntentId: paymentIntentId 
+                });
+
+                document.getElementById('aiLoading').classList.add('hidden');
+                const contentDiv = document.getElementById('aiContent');
+                contentDiv.innerHTML = marked.parse(result.data.analysis);
+                contentDiv.classList.remove('hidden');
+
+            } catch (error) {
+                document.getElementById('aiLoading').innerHTML = `<p class="text-red-600">เกิดข้อผิดพลาด: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
